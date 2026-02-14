@@ -851,6 +851,8 @@ section {
   grid-template-columns: 1fr 280px;
   padding: 0;
   gap: 0;
+  height: 480px;
+  /* Fixed height to prevent chat expansion */
 }
 
 .match-main-col {
@@ -1034,6 +1036,8 @@ section {
 
   .match-body {
     grid-template-columns: 1fr;
+    height: auto;
+    /* Reset fixed height for stacked layout */
   }
 
   .match-chat {
