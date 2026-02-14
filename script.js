@@ -400,12 +400,16 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fill();
 
       drawLine(sh1, '#FF6B00', []);
-      drawLine(sh2, 'rgba(255,255,255,0.5)', [4, 4]);
+      drawLine(sh2, '#FFFFFF', []);
 
       // Dots
       sh1.forEach((v, i) => {
         const x = i * sx, y = h - (v / maxP) * h;
         ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = '#FF6B00'; ctx.fill();
+      });
+      sh2.forEach((v, i) => {
+        const x = i * sx, y = h - (v / maxP) * h;
+        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
       });
     }
 

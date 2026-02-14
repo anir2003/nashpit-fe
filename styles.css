@@ -634,9 +634,11 @@ section {
   }
 }
 
+
 /* Deploy Right Side */
 .deploy-right {
-  padding: 48px 56px;
+  padding: 10px 56px 40px;
+  /* Reduced top padding for alignment */
 }
 
 .deploy-heading {
@@ -799,10 +801,9 @@ section {
    ═══════════════════════════════════════════ */
 
 .match-viewer {
-  margin-top: -1px;
-  /* collapse border */
+  margin-top: 16px;
+  /* Space from label */
   border: 1px solid var(--border);
-  border-top: none;
   background: var(--surface);
   position: relative;
   overflow: hidden;
@@ -846,6 +847,13 @@ section {
 }
 
 .match-body {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  padding: 0;
+  gap: 0;
+}
+
+.match-main-col {
   padding: 32px;
   display: flex;
   flex-direction: column;
@@ -899,7 +907,7 @@ section {
 
 .match-graph-area {
   width: 100%;
-  height: 160px;
+  height: 200px;
   background: rgba(0, 0, 0, 0.2);
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -938,14 +946,18 @@ section {
   color: #F44336;
 }
 
-/* Match Chat (Bottom) */
+/* Match Chat (Right Sidebar) */
 .match-chat {
-  border-top: 1px solid var(--border);
+  border-top: none;
+  border-left: 1px solid var(--border);
   background: #000;
+  display: flex;
+  flex-direction: column;
+  height: auto;
 }
 
 .match-chat-header {
-  padding: 8px 16px;
+  padding: 12px 16px;
   font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-dim);
@@ -954,45 +966,203 @@ section {
 }
 
 .match-chat-messages {
-  height: 140px;
+  flex: 1;
   overflow-y: auto;
-  padding: 12px 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   font-family: var(--font);
   font-size: 0.75rem;
+  height: 100%;
 }
 
 .match-msg {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
   animation: msgAppear 0.3s ease-out backwards;
 }
 
 .match-msg-name {
   font-weight: 700;
-  min-width: 80px;
-  text-align: right;
+  font-size: 0.65rem;
+  opacity: 0.8;
 }
 
 .match-msg-text {
   color: var(--text-muted);
+  line-height: 1.4;
 }
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
 
   .deploy-split,
   .why-split {
     grid-template-columns: 1fr;
   }
 
-  .deploy-right,
-  .why-right {
-    padding: 32px 24px;
+  .deploy-right {
+    padding: 40px 24px;
+  }
+
+  .match-body {
+    grid-template-columns: 1fr;
+  }
+
+  .match-chat {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    height: 300px;
   }
 }
+
+.deploy-heading .orange {
+  color: var(--orange);
+}
+
+.deploy-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 40px;
+  max-width: 420px;
+}
+
+.deploy-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.deploy-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.deploy-step-num {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--orange);
+  border: 1px solid var(--border);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+  background: var(--surface);
+}
+
+.deploy-step h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.deploy-step p {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   WHY THIS MATTERS (split layout)
+   ═══════════════════════════════════════════ */
+
+.why-it-matters {
+  border-top: 1px solid var(--border);
+}
+
+.why-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  align-items: start;
+}
+
+/* Conflict Simulation (left side) */
+.conflict-sim {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.conflict-sim-header {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.conflict-sim-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--orange);
+  text-transform: uppercase;
+}
+
+.conflict-sim-sub {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.conflict-canvas-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 28px 40px;
+}
+
+.conflict-canvas-wrap canvas {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+}
+
+/* Why Right Side */
+.why-right {
+  padding: 48px 56px;
+}
+
+.why-heading {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+  margin-bottom: 36px;
+}
+
+.why-block {
+  margin-bottom: 32px;
+  border-left: 2px solid var(--border);
+  padding-left: 20px;
+}
+
+.why-block:hover {
+  border-left-color: var(--orange);
+}
+
+.why-block h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 10px;
+}
+
+.why-block p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
 
 /* ═══════════════════════════════════════════
    PAYOFF MATRIX
