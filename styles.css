@@ -1420,6 +1420,7 @@ section {
   max-width: 300px;
   height: auto;
   opacity: 0.6;
+  transform-origin: 50% 50%;
   animation: none;
 }
 
