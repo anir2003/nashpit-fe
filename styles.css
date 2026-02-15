@@ -904,16 +904,18 @@ section {
 
 .match-graph-area {
   width: 100%;
-  height: 200px;
-  background: rgba(0, 0, 0, 0.2);
+  height: 220px;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: var(--radius);
   border: 1px solid var(--border);
   position: relative;
+  overflow: hidden;
 }
 
 .match-graph {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .match-moves {

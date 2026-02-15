@@ -357,60 +357,162 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!graphCanvas) return;
       const ctx = graphCanvas.getContext('2d');
       const p = graphCanvas.parentElement;
-      graphCanvas.width = p.clientWidth;
-      graphCanvas.height = p.clientHeight;
-      const w = graphCanvas.width;
-      const h = graphCanvas.height;
+      const dpr = window.devicePixelRatio || 1;
+      graphCanvas.width = p.clientWidth * dpr;
+      graphCanvas.height = p.clientHeight * dpr;
+      ctx.scale(dpr, dpr);
+      const w = p.clientWidth;
+      const h = p.clientHeight;
       ctx.clearRect(0, 0, w, h);
+
+      // Layout padding
+      const padL = 36, padR = 16, padT = 20, padB = 28;
+      const gw = w - padL - padR;
+      const gh = h - padT - padB;
 
       const maxP = Math.max(40, ...sh1, ...sh2) + 5;
       const len = sh1.length;
-      const sx = len > 1 ? w / (len - 1) : w;
+      const sx = len > 1 ? gw / (len - 1) : gw;
 
-      // Grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 5; i++) {
-        const y = (i / 4) * h;
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      // Helper: data coords to canvas coords
+      function toX(i) { return padL + i * sx; }
+      function toY(v) { return padT + gh - (v / maxP) * gh; }
+
+      // Y-axis grid lines + labels
+      const gridLines = 4;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i <= gridLines; i++) {
+        const val = Math.round((maxP / gridLines) * i);
+        const y = toY(val);
+        // Grid line
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(w - padR, y);
+        ctx.stroke();
+        // Label
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.font = '500 9px "Space Grotesk", monospace';
+        ctx.fillText(val, padL - 6, y);
       }
 
-      function drawLine(data, color, dash) {
+      // X-axis round labels
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = 'rgba(255,255,255,0.2)';
+      ctx.font = '500 9px "Space Grotesk", monospace';
+      for (let i = 0; i < len; i++) {
+        const x = toX(i);
+        ctx.fillText(i === 0 ? '0' : i, x, padT + gh + 8);
+      }
+
+      // Axis lines (subtle)
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(padL, padT);
+      ctx.lineTo(padL, padT + gh);
+      ctx.lineTo(w - padR, padT + gh);
+      ctx.stroke();
+
+      // Fill under Agent 1 line (very subtle)
+      if (len > 1) {
+        ctx.fillStyle = 'rgba(255,107,0,0.05)';
+        ctx.beginPath();
+        ctx.moveTo(toX(0), toY(sh1[0]));
+        for (let i = 1; i < len; i++) ctx.lineTo(toX(i), toY(sh1[i]));
+        ctx.lineTo(toX(len - 1), padT + gh);
+        ctx.lineTo(toX(0), padT + gh);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Draw cumulative lines
+      function drawLine(data, color, lineW) {
+        if (data.length < 2) return;
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.setLineDash(dash);
+        ctx.lineWidth = lineW;
+        ctx.setLineDash([]);
         ctx.beginPath();
         data.forEach((v, i) => {
-          const x = i * sx, y = h - (v / maxP) * h;
+          const x = toX(i), y = toY(v);
           if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
         });
         ctx.stroke();
-        ctx.setLineDash([]);
       }
 
-      // Fill Orange
-      ctx.fillStyle = 'rgba(255,107,0,0.06)';
-      ctx.beginPath();
-      sh1.forEach((v, i) => {
-        const x = i * sx, y = h - (v / maxP) * h;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.lineTo((len - 1) * sx, h);
-      ctx.lineTo(0, h);
-      ctx.fill();
+      drawLine(sh1, '#FF6B00', 2);
+      drawLine(sh2, 'rgba(255,255,255,0.85)', 2);
 
-      drawLine(sh1, '#FF6B00', []);
-      drawLine(sh2, '#FFFFFF', []);
+      // Detect betrayals and draw markers
+      // A betrayal = one agent defects on the other (cd or dc) causing a 5-0 split
+      for (let i = 1; i < len; i++) {
+        const m1 = h1[i - 1], m2 = h2[i - 1];
+        if (!m1 || !m2) continue;
+        const isBetray = (m1 === 'D' && m2 === 'C') || (m1 === 'C' && m2 === 'D');
+        if (isBetray) {
+          // Mark on the betrayer's line with an X
+          const betrayerData = m1 === 'D' ? sh1 : sh2;
+          const betrayerColor = m1 === 'D' ? '#FF6B00' : 'rgba(255,255,255,0.85)';
+          const cx = toX(i), cy = toY(betrayerData[i]);
+          const sz = 4;
+          ctx.strokeStyle = betrayerColor;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(cx - sz, cy - sz);
+          ctx.lineTo(cx + sz, cy + sz);
+          ctx.moveTo(cx + sz, cy - sz);
+          ctx.lineTo(cx - sz, cy + sz);
+          ctx.stroke();
+          // Small diamond on victim's line
+          const victimData = m1 === 'D' ? sh2 : sh1;
+          const vx = toX(i), vy = toY(victimData[i]);
+          ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(vx, vy - 4);
+          ctx.lineTo(vx + 4, vy);
+          ctx.lineTo(vx, vy + 4);
+          ctx.lineTo(vx - 4, vy);
+          ctx.closePath();
+          ctx.stroke();
+        }
+      }
 
-      // Dots
+      // Dots on data points
       sh1.forEach((v, i) => {
-        const x = i * sx, y = h - (v / maxP) * h;
-        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = '#FF6B00'; ctx.fill();
+        const x = toX(i), y = toY(v);
+        ctx.beginPath();
+        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#FF6B00';
+        ctx.fill();
       });
       sh2.forEach((v, i) => {
-        const x = i * sx, y = h - (v / maxP) * h;
-        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+        const x = toX(i), y = toY(v);
+        ctx.beginPath();
+        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,255,255,0.85)';
+        ctx.fill();
       });
+
+      // Inline legend (top-right corner)
+      const legX = w - padR - 8;
+      const legY = padT + 4;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.font = '600 9px "Space Grotesk", monospace';
+      // Agent 1
+      ctx.fillStyle = '#FF6B00';
+      ctx.fillRect(legX - 52, legY + 2, 8, 2);
+      ctx.fillText('AGENT_01', legX, legY - 1);
+      // Agent 2
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.fillRect(legX - 52, legY + 16, 8, 2);
+      ctx.fillText('AGENT_02', legX, legY + 13);
     }
 
     function playMatchRound() {
