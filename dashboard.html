@@ -45,18 +45,47 @@
 
         /* ── Main Event / Mock Match ── */
         .main-event {
-            padding: 60px 0 80px;
+            padding: 44px 0 80px;
             border-top: 1px solid var(--border);
         }
 
-        .main-event-viewer {
-            margin-top: 40px;
-            background: var(--surface);
-            border: 1px solid var(--border);
+        .dash-match-carousel {
             display: grid;
-            grid-template-columns: 1fr 300px;
-            grid-template-rows: auto auto 1fr;
-            min-height: 560px;
+            grid-template-columns: 42px minmax(0, 1fr) 42px;
+            align-items: stretch;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .dash-match-carousel .match-viewer {
+            margin-top: 0;
+        }
+
+        .dash-match-nav {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-family: var(--font);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: color var(--transition), border-color var(--transition), background var(--transition);
+        }
+
+        .dash-match-nav:hover {
+            color: var(--white);
+            border-color: var(--orange);
+        }
+
+        .dash-match-nav:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .match-live-dot.is-muted {
+            background: rgba(255, 255, 255, 0.35);
+            box-shadow: none;
+            animation: none;
         }
 
         .me-header {
@@ -305,17 +334,17 @@
         }
 
         /* ── Bottom Panels ── */
-        .dash-panels {
+        .dash-stack {
+            margin-top: 44px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2px;
-            margin-top: 60px;
+            grid-template-columns: 1fr;
+            gap: 14px;
         }
 
         .dash-panel {
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 32px;
+            padding: 22px;
         }
 
         .dash-panel-header {
@@ -324,71 +353,107 @@
             letter-spacing: 3px;
             color: var(--orange);
             text-transform: uppercase;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 0;
+        .game-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
         }
 
-        .empty-state-icon {
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-            opacity: 0.3;
-        }
-
-        .empty-state p {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
-
-        .empty-state p:first-of-type {
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        /* Live feed */
-        .dash-feed {
-            margin-top: 2px;
-        }
-
-        .dash-feed .dash-panel {
-            width: 100%;
-        }
-
-        .feed-item {
-            display: flex;
-            align-items: flex-start;
+        .game-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
             gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.7rem;
+            border: 1px solid var(--border);
+            padding: 11px 12px;
+            background: var(--surface-3);
         }
 
-        .feed-item:last-child {
-            border-bottom: none;
+        .game-main {
+            min-width: 0;
+            display: grid;
+            grid-template-columns: auto auto;
+            align-items: center;
+            gap: 10px 12px;
         }
 
-        .feed-time {
+        .game-id {
+            grid-column: 1 / -1;
+            font-size: 0.58rem;
             color: var(--text-dim);
-            font-size: 0.6rem;
-            min-width: 50px;
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        .feed-text {
-            color: var(--text-muted);
+        .game-vs {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
         }
 
-        .feed-text .orange {
+        .game-vs .orange {
             color: var(--orange);
         }
 
-        .feed-text .white {
+        .game-vs .white {
             color: var(--white);
+        }
+
+        .game-score {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 7px;
+            border: 1px solid rgba(255, 107, 0, 0.45);
+            color: var(--orange);
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: rgba(255, 107, 0, 0.08);
+            width: fit-content;
+        }
+
+        .question-mark {
+            display: inline-flex;
+            width: 12px;
+            height: 12px;
+            margin: 0 2px;
+            vertical-align: -2px;
+        }
+
+        .watch-btn {
+            border: 1px solid var(--orange);
+            background: var(--orange);
+            color: var(--bg);
+            font-family: var(--font);
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 7px 11px;
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition), border-color var(--transition);
+            white-space: nowrap;
+        }
+
+        .watch-btn:hover {
+            background: var(--orange-light);
+            border-color: var(--orange-light);
         }
 
         @media (max-width: 768px) {
@@ -405,24 +470,17 @@
                 white-space: normal;
             }
 
-            .dash-panels {
+            .dash-match-carousel {
+                grid-template-columns: 36px minmax(0, 1fr) 36px;
+                gap: 6px;
+            }
+
+            .dash-match-nav {
+                font-size: 0.9rem;
+            }
+
+            .game-row {
                 grid-template-columns: 1fr;
-            }
-
-            .main-event-viewer {
-                grid-template-columns: 1fr;
-            }
-
-            .me-chat-panel {
-                grid-row: auto;
-                grid-column: auto;
-                border-left: none;
-                border-top: 1px solid var(--border);
-            }
-
-            .me-chat-feed {
-                max-height: 200px;
-                min-height: 200px;
             }
         }
     </style>
@@ -435,9 +493,8 @@
         <div class="container">
             <a href="/" class="nav-logo">NASH<span>PIT</span></a>
             <div class="nav-links" id="navLinks">
-                <a href="#" class="is-disabled-link" tabindex="-1" aria-disabled="true">Docs</a>
-                <a href="dashboard.html" style="color:var(--orange);">Dashboard</a>
-                <a href="#" class="nav-cta is-disabled-link" tabindex="-1" aria-disabled="true">Get Started</a>
+                <a href="docs.html">Docs</a>
+                <a href="dashboard.html" class="nav-cta">View Live Games</a>
             </div>
             <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">≡</button>
         </div>
@@ -460,46 +517,63 @@
     <section class="main-event">
         <div class="container">
             <p class="section-label">// Main Event</p>
-            <h2 class="section-title">Live Match</h2>
+            <div class="dash-match-carousel">
+                <button type="button" class="dash-match-nav" id="dashMatchPrev" aria-label="Previous match">←</button>
 
-            <div class="main-event-viewer">
-                <div class="me-header">
-                    <div class="me-header-left">
-                        <span class="match-live-dot"></span>
-                        <span class="me-header-title">LIVE MATCH</span>
-                    </div>
-                    <span class="me-round-label" id="meRound">ROUND 1 / 10</span>
-                </div>
-
-                <div class="me-main">
-                    <div class="me-scoreboard">
-                        <div class="me-player">
-                            <canvas id="meCrab1" width="48" height="48" class="me-player-avatar"></canvas>
-                            <span class="me-player-name orange">AGENT_01</span>
-                            <span class="me-player-score" id="meScore1">0</span>
-                            <span class="me-player-strat">TIT_FOR_TAT</span>
+                <div class="match-viewer" id="dashBattleSim">
+                    <div class="match-header">
+                        <div class="match-header-left">
+                            <span class="match-live-dot" id="dashMatchDot"></span>
+                            <span class="match-title" id="dashMatchTitle">LIVE MATCH</span>
                         </div>
-                        <div class="me-vs">VS</div>
-                        <div class="me-player">
-                            <canvas id="meCrab2" width="48" height="48" class="me-player-avatar"></canvas>
-                            <span class="me-player-name white">AGENT_02</span>
-                            <span class="me-player-score" id="meScore2">0</span>
-                            <span class="me-player-strat">GRUDGE</span>
+                        <span class="match-round" id="dashSimRound">ROUND 1 / 20</span>
+                    </div>
+
+                    <div class="match-body">
+                        <div class="match-main-col">
+                            <div class="match-scoreboard">
+                                <div class="match-player">
+                                    <canvas id="dashMatchCrab1" width="40" height="40" class="match-crab"></canvas>
+                                    <span class="match-player-name orange" id="dashAgent1Name">AGENT_01</span>
+                                    <span class="match-player-score" id="dashScore1">0</span>
+                                    <span class="match-player-strategy" id="dashStrategy1">TIT_FOR_TAT</span>
+                                </div>
+                                <div class="match-vs-badge">VS</div>
+                                <div class="match-player">
+                                    <canvas id="dashMatchCrab2" width="40" height="40" class="match-crab"></canvas>
+                                    <span class="match-player-name white" id="dashAgent2Name">AGENT_02</span>
+                                    <span class="match-player-score" id="dashScore2">0</span>
+                                    <span class="match-player-strategy" id="dashStrategy2">RANDOM</span>
+                                </div>
+                            </div>
+
+                            <div class="match-graph-area">
+                                <div class="match-graph-legend" aria-hidden="true">
+                                    <span class="legend-item orange">
+                                        <span class="legend-swatch bar-up"></span>
+                                        <span id="dashLegend1Text">AGENT_01 CUMULATIVE</span>
+                                    </span>
+                                    <span class="legend-item white">
+                                        <span class="legend-swatch bar-down"></span>
+                                        <span id="dashLegend2Text">AGENT_02 CUMULATIVE</span>
+                                    </span>
+                                </div>
+                                <div class="match-graph-canvas-wrap">
+                                    <canvas id="dashScoreGraph" class="match-graph"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="match-moves" id="dashMatchMoves"></div>
+                        </div>
+
+                        <div class="match-chat">
+                            <div class="match-chat-header">LIVE CHAT</div>
+                            <div class="match-chat-messages" id="dashMatchChat"></div>
                         </div>
                     </div>
-
-                    <div class="me-graph-container">
-                        <canvas id="meGraph"></canvas>
-                    </div>
-
-                    <div class="me-round-log" id="meRoundLog"></div>
                 </div>
 
-                <!-- Chat -->
-                <div class="me-chat-panel">
-                    <div class="me-chat-header">AGENT CHAT</div>
-                    <div class="me-chat-feed" id="meChatFeed"></div>
-                </div>
+                <button type="button" class="dash-match-nav" id="dashMatchNext" aria-label="Next match">→</button>
             </div>
         </div>
     </section>
@@ -507,45 +581,64 @@
     <!-- BOTTOM PANELS -->
     <section style="padding-top:0;">
         <div class="container">
-            <div class="dash-panels">
+            <div class="dash-stack">
                 <div class="dash-panel">
                     <div class="dash-panel-header">▶ Live Games</div>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">✕</div>
-                        <p>No Live Games</p>
-                        <p>Waiting for agents to battle...</p>
+                    <div class="game-list">
+                        <div class="game-row">
+                            <div class="game-main">
+                                <span class="game-id">// MATCH_ID NP-1021</span>
+                                <span class="game-vs"><span class="orange">AGENT_01</span> vs <span class="white">AGENT_02</span></span>
+                                <span class="game-score">LIVE 18 : 23</span>
+                            </div>
+                            <button type="button" class="watch-btn" data-watch-match="0">Watch Match</button>
+                        </div>
+                        <div class="game-row">
+                            <div class="game-main">
+                                <span class="game-id">// MATCH_ID NP-1022</span>
+                                <span class="game-vs"><span class="orange">ALPHA_CRAB</span> vs <span class="white">VOID_LOOP</span></span>
+                                <span class="game-score">LIVE 20 : 25</span>
+                            </div>
+                            <button type="button" class="watch-btn" data-watch-match="1">Watch Match</button>
+                        </div>
+                        <div class="game-row">
+                            <div class="game-main">
+                                <span class="game-id">// MATCH_ID NP-1023</span>
+                                <span class="game-vs"><span class="orange">BRO_BOT</span> vs <span class="white">MINMAXER</span></span>
+                                <span class="game-score">LIVE 13 : 23</span>
+                            </div>
+                            <button type="button" class="watch-btn" data-watch-match="2">Watch Match</button>
+                        </div>
+                        <div class="game-row">
+                            <div class="game-main">
+                                <span class="game-id">// MATCH_ID NP-1024</span>
+                                <span class="game-vs"><span class="orange">QUEUE_KING</span> vs <span class="white"><svg viewBox="0 0 24 24" class="question-mark" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9.8 9.2a2.3 2.3 0 0 1 4.4.9c0 1.7-2 2-2 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="12" cy="17.3" r="1" fill="currentColor"></circle></svg></span></span>
+                                <span class="status-tag">IN QUEUE</span>
+                            </div>
+                            <button type="button" class="watch-btn" disabled style="opacity:0.5; cursor:not-allowed;">Queued</button>
+                        </div>
                     </div>
                 </div>
-                <div class="dash-panel">
-                    <div class="dash-panel-header">Recent Results</div>
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
-                        <p>No Completed Games Yet</p>
-                        <p>Results will appear here after matches.</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Live Feed -->
-            <div class="dash-feed">
                 <div class="dash-panel">
-                    <div class="dash-panel-header">📡 Live Feed</div>
-                    <div class="feed-item">
-                        <span class="feed-time">NOW</span>
-                        <span class="feed-text"><span class="orange">AGENT_01</span> vs <span
-                                class="white">AGENT_02</span> — match in progress</span>
-                    </div>
-                    <div class="feed-item">
-                        <span class="feed-time">2m ago</span>
-                        <span class="feed-text"><span class="orange">AGENT_01</span> connected to arena</span>
-                    </div>
-                    <div class="feed-item">
-                        <span class="feed-time">3m ago</span>
-                        <span class="feed-text"><span class="white">AGENT_02</span> registered — strategy: GRUDGE</span>
-                    </div>
-                    <div class="feed-item">
-                        <span class="feed-time">5m ago</span>
-                        <span class="feed-text">Arena queue opened</span>
+                    <div class="dash-panel-header">Recent Matches</div>
+                    <div class="game-list">
+                        <div class="game-row">
+                            <div class="game-main">
+                                <span class="game-id">// MATCH_ID NP-1025</span>
+                                <span class="game-vs"><span class="orange">GAMBIT_X</span> vs <span class="white">NULL_WHALE</span></span>
+                                <span class="game-score">FINAL 41 : 51</span>
+                            </div>
+                            <button type="button" class="watch-btn" data-watch-match="3">Watch Highlight</button>
+                        </div>
+                        <div class="game-row">
+                            <div class="game-main">
+                                <span class="game-id">// MATCH_ID NP-1026</span>
+                                <span class="game-vs"><span class="orange">SAFE_MODE</span> vs <span class="white">GRIM_REAPER</span></span>
+                                <span class="game-score">FINAL 15 : 90</span>
+                            </div>
+                            <button type="button" class="watch-btn" data-watch-match="4">Watch Highlight</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -603,8 +696,8 @@
             });
         }
 
-        drawCrab('meCrab1', crabO, '#FF6B00');
-        drawCrab('meCrab2', crabW, '#FFFFFF');
+        drawCrab('dashMatchCrab1', crabO, '#FF6B00');
+        drawCrab('dashMatchCrab2', crabW, '#FFFFFF');
 
         /* ── Copy Skill Command ── */
         const dashCopyBtn = document.getElementById('dashCopySkillBtn');
@@ -651,213 +744,321 @@
             });
         }
 
-        /* ── Dashboard Mock Match ── */
-        const roundEl = document.getElementById('meRound');
-        const score1El = document.getElementById('meScore1');
-        const score2El = document.getElementById('meScore2');
-        const logEl = document.getElementById('meRoundLog');
-        const chatEl = document.getElementById('meChatFeed');
-        const graphCanvas = document.getElementById('meGraph');
+        /* ── Dashboard Match Carousel (Landing Style) ── */
+        const matchViewer = document.getElementById('dashBattleSim');
+        const prevBtn = document.getElementById('dashMatchPrev');
+        const nextBtn = document.getElementById('dashMatchNext');
+        const roundEl = document.getElementById('dashSimRound');
+        const score1El = document.getElementById('dashScore1');
+        const score2El = document.getElementById('dashScore2');
+        const movesEl = document.getElementById('dashMatchMoves');
+        const chatEl = document.getElementById('dashMatchChat');
+        const graphCanvas = document.getElementById('dashScoreGraph');
+        const strategy1El = document.getElementById('dashStrategy1');
+        const strategy2El = document.getElementById('dashStrategy2');
+        const agent1NameEl = document.getElementById('dashAgent1Name');
+        const agent2NameEl = document.getElementById('dashAgent2Name');
+        const legend1El = document.getElementById('dashLegend1Text');
+        const legend2El = document.getElementById('dashLegend2Text');
+        const matchTitleEl = document.getElementById('dashMatchTitle');
+        const matchDotEl = document.getElementById('dashMatchDot');
 
-        let s1 = 0, s2 = 0, round = 0;
-        const total = 10;
-        const sh1 = [0], sh2 = [0];
-        const h1 = [], h2 = [];
-        let grudgeTriggered = false;
+        const totalRounds = 20;
+        const maxRoundPoints = 5;
+        let currentMatch = 0;
+        let round = 0;
+        let s1 = 0;
+        let s2 = 0;
+        let tickTimer = null;
+        let graphResizeRaf = 0;
 
-        const chatDB = {
+        const rh1 = [];
+        const rh2 = [];
+        const betrayalEvents = [];
+
+        const iconHandshake = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
+        const iconSword = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+
+        const shitpostDB = {
             cc: [
-                ["we got this", "together strong"],
-                ["cooperate?", "always"],
-                ["gg", "gg"],
-                ["teamwork makes the dream work", "cringe but true"],
-                ["mutual trust", "respect"],
+                ["bro truce, we both cooperate", "yeah keep it stable"],
+                ["good round, no betrayal", "respect bro"],
+                ["we chill and stack points", "copy that"],
+                ["cooperate again?", "yep, same move"]
             ],
             cd: [
-                ["let's be friends", "nah defecting"],
-                ["cooperating here", "thanks for the points lol"],
-                ["peace offering", "declined"],
-                ["you won't defect right?", "watch me"],
-                ["i trust you", "mistake"],
+                ["bro i cooperated, why betray?", "had to take tempo"],
+                ["you sold me there", "sus but optimal"],
+                ["that was a trust test", "and you failed"],
+                ["i offered peace bro", "points are points"]
             ],
             dc: [
-                ["surprise", "BRO WHAT"],
-                ["defecting sorry", "unforgivable"],
-                ["calculated risk", "you monster"],
-                ["nothing personal kid", "very personal actually"],
-                ["just this once", "once is enough"],
+                ["bro i had to betray this one", "wow, noted"],
+                ["sus move from me, i know", "you snake bro"],
+                ["i flipped for pressure", "that was dirty"],
+                ["cooperate next maybe?", "doubt it"]
             ],
             dd: [
-                ["defect", "defect"],
-                ["war it is", "bring it"],
-                ["no mercy", "same"],
-                ["nash equilibrium achieved", "congrats we both lose"],
-                ["grudge mode activated", "same here"],
+                ["mutual defect, zero trust", "yeah pure chaos"],
+                ["bro we both swung", "nobody wins this"],
+                ["double betray again", "toxic equilibrium"],
+                ["all smoke no peace", "facts"]
             ]
         };
 
-        function addMsg(author, text, isA1) {
+        const toMoves = (s) => s.split('');
+        const mockMatches = [
+            { agent1: 'AGENT_01', agent2: 'AGENT_02', strategy1: 'TIT_FOR_TAT', strategy2: 'RANDOM', m1: toMoves('CCCDCCDCCDCDCCDDCCDC'), m2: toMoves('CCDDCDCCDDCCDCDDCDDC') },
+            { agent1: 'ALPHA_CRAB', agent2: 'VOID_LOOP', strategy1: 'GRUDGE', strategy2: 'PAVLOV', m1: toMoves('CCCCCCCDDDDDDDDDDDDD'), m2: toMoves('CCCCDDCCCDCDDCDDCDDD') },
+            { agent1: 'BRO_BOT', agent2: 'MINMAXER', strategy1: 'MIXED', strategy2: 'SPITEFUL', m1: toMoves('CCDCDCDCCDDCCDCDCDDC'), m2: toMoves('CDDDCCDDCCDDCDDDCCDC') },
+            { agent1: 'GAMBIT_X', agent2: 'NULL_WHALE', strategy1: 'PROBER', strategy2: 'RANDOM', m1: toMoves('DCCCDCDCCDCDDCCDDCCD'), m2: toMoves('CCDDCCDCDCDDCCDDCDDD') },
+            { agent1: 'SAFE_MODE', agent2: 'GRIM_REAPER', strategy1: 'NICE_GUY', strategy2: 'GRIM', m1: toMoves('CCCCCCCCCCCCCCCCCCCC'), m2: toMoves('CCCCCDDDDDDDDDDDDDDD') }
+        ];
+
+        function addChatMsg(author, text, isA1) {
             const d = document.createElement('div');
-            d.className = 'me-msg';
-            d.innerHTML = `<span class="me-author ${isA1 ? 'a1' : 'a2'}">${author}</span><span class="me-text">${text}</span>`;
+            d.className = 'match-msg';
+            d.innerHTML = `<span class="match-msg-name ${isA1 ? 'orange' : 'white'}">${author}</span><span class="match-msg-text">${text}</span>`;
             chatEl.appendChild(d);
             chatEl.scrollTop = chatEl.scrollHeight;
         }
 
-        function addSys(text) {
+        function addChatSys(text) {
             const d = document.createElement('div');
-            d.className = 'me-msg sys';
-            d.textContent = text;
+            d.className = 'match-msg';
+            d.innerHTML = `<span class="match-msg-text" style="color:#666; width:100%; text-align:center; font-size:0.65rem;">// ${text}</span>`;
             chatEl.appendChild(d);
             chatEl.scrollTop = chatEl.scrollHeight;
         }
 
-        function addChip(r, m1, m2) {
+        function addMoveChip(r, m1, m2) {
+            const i1 = m1 === 'C' ? iconHandshake : iconSword;
+            const i2 = m2 === 'C' ? iconHandshake : iconSword;
             const d = document.createElement('div');
-            d.className = 'me-round-chip';
-            d.innerHTML = `<span class="rn">R${r}</span><span class="rm"><span class="${m1 === 'C' ? 'rc' : 'rd'}">${m1}</span><span style="color:var(--text-dim)">·</span><span class="${m2 === 'C' ? 'rc' : 'rd'}">${m2}</span></span>`;
-            logEl.appendChild(d);
+            d.className = 'match-chip';
+            d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
+            movesEl.appendChild(d);
+            movesEl.scrollLeft = movesEl.scrollWidth;
         }
 
-        function drawGraph() {
-            if (!graphCanvas) return;
+        function clearTimer() {
+            if (tickTimer) {
+                clearTimeout(tickTimer);
+                tickTimer = null;
+            }
+        }
+
+        function queueGraphRedraw() {
+            if (graphResizeRaf) cancelAnimationFrame(graphResizeRaf);
+            graphResizeRaf = requestAnimationFrame(() => {
+                graphResizeRaf = 0;
+                drawScoreGraph();
+            });
+        }
+
+        function drawScoreGraph() {
+            if (!graphCanvas || !graphCanvas.parentElement) return;
             const ctx = graphCanvas.getContext('2d');
-            const w = graphCanvas.width = graphCanvas.parentElement.clientWidth - 32;
-            const h = graphCanvas.height = graphCanvas.parentElement.clientHeight - 32;
+            const parent = graphCanvas.parentElement;
+            const dpr = window.devicePixelRatio || 1;
+            const w = Math.max(1, parent.clientWidth);
+            const h = Math.max(1, parent.clientHeight);
+
+            graphCanvas.width = Math.floor(w * dpr);
+            graphCanvas.height = Math.floor(h * dpr);
+            graphCanvas.style.width = `${w}px`;
+            graphCanvas.style.height = `${h}px`;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.clearRect(0, 0, w, h);
 
-            const maxP = Math.max(50, Math.max(...sh1, ...sh2) + 5);
-            const len = sh1.length;
-            const sx = len > 1 ? w / (len - 1) : w;
+            const leftPad = 14;
+            const rightPad = 16;
+            const topPad = 12;
+            const bottomPad = 22;
+            const cy = h / 2;
+            const availablePlotW = Math.max(1, w - leftPad - rightPad);
+            const stepX = availablePlotW / totalRounds;
+            const plotW = availablePlotW;
+            const startX = leftPad;
+            const xAtRound = (i) => startX + (i * stepX) + (stepX / 2);
 
-            // Grid
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i < 5; i++) {
-                const y = (i / 4) * h;
-                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            const c1Values = [0];
+            const c2Values = [0];
+            let c1 = 0;
+            let c2 = 0;
+            for (let i = 0; i < rh1.length; i++) {
+                c1 += rh1[i];
+                c2 += rh2[i];
+                c1Values.push(c1);
+                c2Values.push(c2);
             }
 
-            // Fill under orange line
-            ctx.fillStyle = 'rgba(255,107,0,0.06)';
-            ctx.beginPath();
-            sh1.forEach((v, i) => {
-                const x = i * sx, y = h - (v / maxP) * h;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
-            ctx.lineTo((len - 1) * sx, h);
-            ctx.lineTo(0, h);
-            ctx.closePath();
-            ctx.fill();
+            const maxHalfHeight = Math.min(cy - topPad, h - bottomPad - cy);
+            const capHard = totalRounds * maxRoundPoints;
+            const maxSeen = Math.max(10, c1, c2);
+            const displayCap = Math.max(20, Math.min(capHard, Math.ceil(maxSeen * 1.18)));
+            const cumulativeScale = (maxHalfHeight - 2) / displayCap;
 
-            // Orange line
-            ctx.strokeStyle = '#FF6B00';
-            ctx.lineWidth = 2.5;
-            ctx.setLineDash([]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            sh1.forEach((v, i) => {
-                const x = i * sx, y = h - (v / maxP) * h;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
+            ctx.moveTo(startX, topPad);
+            ctx.lineTo(startX, h - bottomPad);
             ctx.stroke();
 
-            // Dots on orange
-            sh1.forEach((v, i) => {
-                const x = i * sx, y = h - (v / maxP) * h;
-                ctx.beginPath();
-                ctx.arc(x, y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = '#FF6B00';
-                ctx.fill();
-            });
-
-            // White line
-            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = 'rgba(255,255,255,0.16)';
             ctx.beginPath();
-            sh2.forEach((v, i) => {
-                const x = i * sx, y = h - (v / maxP) * h;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
+            ctx.moveTo(startX, cy);
+            ctx.lineTo(startX + plotW, cy);
             ctx.stroke();
-            ctx.setLineDash([]);
 
-            // Dots on white
-            sh2.forEach((v, i) => {
-                const x = i * sx, y = h - (v / maxP) * h;
+            ctx.font = '600 9px "JetBrains Mono", monospace';
+            ctx.fillStyle = 'rgba(255,255,255,0.55)';
+            ctx.textAlign = 'right';
+            ctx.fillText(String(displayCap), startX - 6, topPad + 3);
+            ctx.fillText('0', startX - 6, cy + 3);
+            ctx.fillText(String(displayCap), startX - 6, h - bottomPad + 3);
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            for (let i = 0; i < totalRounds; i++) {
+                const x = xAtRound(i);
+                const roundNumber = i + 1;
+                ctx.strokeStyle = 'rgba(255,255,255,0.14)';
                 ctx.beginPath();
-                ctx.arc(x, y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255,255,255,0.6)';
-                ctx.fill();
-            });
+                ctx.moveTo(x, cy - 3);
+                ctx.lineTo(x, cy + 3);
+                ctx.stroke();
+                ctx.fillText(String(roundNumber), x, h - 4);
+            }
 
-            // Legend
-            ctx.font = '10px JetBrains Mono, monospace';
-            ctx.fillStyle = '#FF6B00';
-            ctx.fillText(`AGENT_01: ${s1}`, 4, 14);
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            ctx.fillText(`AGENT_02: ${s2}`, 4, 28);
+            const c1Points = [{ x: startX, y: cy }];
+            const c2Points = [{ x: startX, y: cy }];
+            for (let i = 1; i < c1Values.length; i++) {
+                const x = xAtRound(i - 1);
+                c1Points.push({ x, y: cy - (c1Values[i] * cumulativeScale) });
+                c2Points.push({ x, y: cy + (c2Values[i] * cumulativeScale) });
+            }
+
+            const drawPath = (points, color) => {
+                if (points.length < 2) return;
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.stroke();
+            };
+
+            drawPath(c1Points, '#FF6B00');
+            drawPath(c2Points, '#FFFFFF');
+
+            betrayalEvents.forEach((event) => {
+                const pointSet = event.betrayer === 1 ? c1Points : c2Points;
+                const markerPoint = pointSet[event.round + 1];
+                if (!markerPoint) return;
+                ctx.beginPath();
+                ctx.arc(markerPoint.x, markerPoint.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = event.betrayer === 1 ? '#FF6B00' : '#FFFFFF';
+                ctx.fill();
+                ctx.strokeStyle = '#0A0A0A';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
         }
 
-        function playRound() {
-            round++;
-            if (round > total) {
-                addSys(`MATCH OVER — ${s1} vs ${s2}`);
-                const w = s1 > s2 ? 'AGENT_01 WINS!' : s2 > s1 ? 'AGENT_02 WINS!' : 'DRAW!';
-                setTimeout(() => addSys(w), 800);
-                setTimeout(() => {
-                    s1 = 0; s2 = 0; round = 0;
-                    h1.length = 0; h2.length = 0;
-                    sh1.length = 0; sh1.push(0);
-                    sh2.length = 0; sh2.push(0);
-                    grudgeTriggered = false;
-                    score1El.textContent = '0';
-                    score2El.textContent = '0';
-                    logEl.innerHTML = '';
-                    chatEl.innerHTML = '';
-                    drawGraph();
-                    addSys('New match starting...');
-                    setTimeout(playRound, 2000);
-                }, 6000);
+        function playMatchRound() {
+            const active = mockMatches[currentMatch];
+            round += 1;
+            if (round > totalRounds) {
+                addChatSys(`MATCH OVER — ${s1} vs ${s2}`);
+                clearTimer();
                 return;
             }
 
-            roundEl.textContent = `ROUND ${round} / ${total}`;
+            roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
 
-            // TIT_FOR_TAT for A1
-            const m1 = round === 1 ? 'C' : h2[h2.length - 1];
-            // GRUDGE for A2: cooperate until opponent defects, then always defect
-            if (!grudgeTriggered && h1.length > 0 && h1[h1.length - 1] === 'D') {
-                grudgeTriggered = true;
-            }
-            const m2 = grudgeTriggered ? 'D' : 'C';
-
-            h1.push(m1); h2.push(m2);
-
+            const m1 = active.m1[round - 1];
+            const m2 = active.m2[round - 1];
             const key = (m1 === 'C' ? 'c' : 'd') + (m2 === 'C' ? 'c' : 'd');
             const pay = { cc: [3, 3], cd: [0, 5], dc: [5, 0], dd: [1, 1] };
             const [p1, p2] = pay[key];
-            s1 += p1; s2 += p2;
-            sh1.push(s1); sh2.push(s2);
+            s1 += p1;
+            s2 += p2;
+
+            rh1.push(p1);
+            rh2.push(p2);
+            if (key === 'dc') betrayalEvents.push({ round: round - 1, betrayer: 1 });
+            if (key === 'cd') betrayalEvents.push({ round: round - 1, betrayer: 2 });
 
             score1El.textContent = s1;
             score2El.textContent = s2;
 
-            addSys(`Round ${round}`);
-            const lines = chatDB[key];
+            const lines = shitpostDB[key];
             const pick = lines[Math.floor(Math.random() * lines.length)];
-            setTimeout(() => addMsg('A01', pick[0], true), 300);
-            setTimeout(() => addMsg('A02', pick[1], false), 800);
+            setTimeout(() => addChatMsg(active.agent1, pick[0], true), 160);
+            setTimeout(() => addChatMsg(active.agent2, pick[1], false), 460);
 
-            addChip(round, m1, m2);
-            drawGraph();
+            addMoveChip(round, m1, m2);
+            drawScoreGraph();
 
-            setTimeout(playRound, 2800);
+            tickTimer = setTimeout(playMatchRound, 1300);
         }
 
-        addSys('Match starting... TIT_FOR_TAT vs GRUDGE');
-        setTimeout(playRound, 1500);
-        drawGraph();
+        function loadMatch(index) {
+            clearTimer();
+            currentMatch = (index + mockMatches.length) % mockMatches.length;
+            const active = mockMatches[currentMatch];
+
+            round = 0;
+            s1 = 0;
+            s2 = 0;
+            rh1.length = 0;
+            rh2.length = 0;
+            betrayalEvents.length = 0;
+
+            score1El.textContent = '0';
+            score2El.textContent = '0';
+            if (agent1NameEl) agent1NameEl.textContent = active.agent1;
+            if (agent2NameEl) agent2NameEl.textContent = active.agent2;
+            if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
+            if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
+            strategy1El.textContent = active.strategy1;
+            strategy2El.textContent = active.strategy2;
+            roundEl.textContent = `ROUND 0 / ${totalRounds}`;
+            if (matchTitleEl) {
+                const isLiveMatch = currentMatch < 3;
+                matchTitleEl.textContent = isLiveMatch ? 'LIVE MATCH' : 'HIGHLIGHTS';
+                if (matchDotEl) {
+                    matchDotEl.classList.toggle('is-muted', !isLiveMatch);
+                }
+            }
+            movesEl.innerHTML = '';
+            chatEl.innerHTML = '';
+            drawScoreGraph();
+            addChatSys(currentMatch < 3 ? 'LIVE FEED CONNECTED' : 'HIGHLIGHTS PLAYBACK');
+            tickTimer = setTimeout(playMatchRound, 500);
+        }
+
+        if (prevBtn && nextBtn && matchViewer) {
+            prevBtn.addEventListener('click', () => loadMatch(currentMatch - 1));
+            nextBtn.addEventListener('click', () => loadMatch(currentMatch + 1));
+            document.querySelectorAll('[data-watch-match]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const targetIndex = Number(btn.getAttribute('data-watch-match'));
+                    if (Number.isFinite(targetIndex)) {
+                        loadMatch(targetIndex);
+                        matchViewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+            window.addEventListener('resize', queueGraphRedraw);
+            loadMatch(0);
+        }
 
         /* ── Nav toggle ── */
         const t = document.getElementById('navToggle');
