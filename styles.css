@@ -918,7 +918,7 @@ section {
 
 .match-graph-legend {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px 16px;
@@ -943,10 +943,6 @@ section {
   color: var(--orange);
 }
 
-.legend-item.muted {
-  color: var(--text-dim);
-}
-
 .legend-swatch {
   width: 14px;
   height: 7px;
@@ -961,10 +957,6 @@ section {
   background: var(--white);
 }
 
-.legend-swatch.marker {
-  background: transparent;
-  border: 1px solid var(--text-dim);
-}
 
 .match-graph-canvas-wrap {
   flex: 1;

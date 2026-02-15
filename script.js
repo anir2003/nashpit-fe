@@ -395,12 +395,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const bottomPad = 22;
       const cy = h / 2;
       const availablePlotW = Math.max(1, w - leftPad - rightPad);
-      let stepX = availablePlotW / total;
-      if (stepX > 28) stepX = 28;
-      const plotW = stepX * total;
+      const stepX = availablePlotW / total;
+      const plotW = availablePlotW;
       const startX = leftPad;
       const xAtRound = (i) => startX + (i * stepX) + (stepX / 2);
-      const roundTickInterval = total > 16 ? 2 : 1;
 
       // Build cumulative arrays first so scaling adapts as the game evolves.
       const c1Values = [0];
@@ -446,7 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       for (let i = 0; i < total; i++) {
         const roundNumber = i + 1;
-        if (roundNumber % roundTickInterval !== 0 && roundNumber !== 1 && roundNumber !== total) continue;
         const x = xAtRound(i);
         ctx.strokeStyle = 'rgba(255,255,255,0.14)';
         ctx.beginPath();
@@ -522,13 +519,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
       roundEl.textContent = `ROUND ${round} / ${total}`;
 
-      // Logic: Tit-For-Tat (A1) vs Random (A2)
-      const m1 = round === 1 ? 'C' : h2[h2.length - 1];
-      const m2 = Math.random() > 0.5 ? 'C' : 'D';
+      const pay = { cc: [3, 3], cd: [0, 5], dc: [5, 0], dd: [1, 1] };
+
+      // Scripted pressure moments to keep the mock match entertaining.
+      const a1PlannedDefects = new Set([6, 11, 16, 19]);
+      const a2PlannedDefects = new Set([4, 8, 13, 18, 20]);
+
+      let m1 = round === 1 ? 'C' : h2[h2.length - 1];
+      if (a1PlannedDefects.has(round)) m1 = 'D';
+
+      let m2;
+      if (a2PlannedDefects.has(round)) {
+        m2 = 'D';
+      } else {
+        m2 = Math.random() < 0.35 ? 'D' : 'C';
+      }
+
+      let key = (m1 === 'C' ? 'c' : 'd') + (m2 === 'C' ? 'c' : 'd');
+
+      // Avoid ending in a draw on round 20.
+      if (round === total) {
+        const finalTest = pay[key];
+        if ((s1 + finalTest[0]) === (s2 + finalTest[1])) {
+          if (s1 >= s2) {
+            m1 = 'C';
+            m2 = 'D';
+            key = 'cd';
+          } else {
+            m1 = 'D';
+            m2 = 'C';
+            key = 'dc';
+          }
+        }
+      }
 
       h1.push(m1); h2.push(m2);
-      const key = (m1 === 'C' ? 'c' : 'd') + (m2 === 'C' ? 'c' : 'd');
-      const pay = { cc: [3, 3], cd: [0, 5], dc: [5, 0], dd: [1, 1] };
       const [p1, p2] = pay[key];
 
       s1 += p1; s2 += p2;
