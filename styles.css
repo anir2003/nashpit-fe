@@ -1106,7 +1106,7 @@ section {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
-  align-items: start;
+  align-items: center;
 }
 
 /* Conflict Simulation (left side) */
@@ -1141,13 +1141,57 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px 28px 40px;
+  position: relative;
+  width: 100%;
+  height: 480px;
+  /* Fixed height to match right side roughly, or let it grow with padding */
+  padding: 40px;
 }
 
-.conflict-canvas-wrap canvas {
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.conflict-svg {
   width: 100%;
-  max-width: 380px;
+  max-width: 300px;
   height: auto;
+  opacity: 0.6;
+  animation: spin 20s linear infinite;
+}
+
+.conflict-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  animation: spin 8s linear infinite reverse;
+  opacity: 0.15;
+}
+
+.conflict-overlay-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.overlay-quarter {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  border-right: 1px solid var(--orange);
+  border-bottom: 1px solid var(--orange);
+  background:
+    linear-gradient(135deg, transparent 40%, rgba(255, 107, 0, 0.1) 100%);
 }
 
 /* Why Right Side */

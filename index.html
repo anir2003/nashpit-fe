@@ -208,7 +208,23 @@
             <span class="conflict-sim-sub">Target: USA / USSR [Historical Data]</span>
           </div>
           <div class="conflict-canvas-wrap">
-            <canvas id="conflictCanvas" width="400" height="340"></canvas>
+            <svg viewBox="0 0 200 200" class="conflict-svg">
+              <circle cx="100" cy="100" r="90" fill="none" stroke="#333" stroke-width="1"></circle>
+              <ellipse cx="100" cy="100" rx="90" ry="30" fill="none" stroke="#FF5722" stroke-width="1"
+                transform="rotate(45 100 100)"></ellipse>
+              <ellipse cx="100" cy="100" rx="90" ry="30" fill="none" stroke="#555" stroke-width="1"
+                transform="rotate(-45 100 100)"></ellipse>
+              <path d="M100,10 L100,190" stroke="#333" stroke-width="1"></path>
+              <path d="M10,100 L190,100" stroke="#333" stroke-width="1"></path>
+              <ellipse cx="100" cy="100" rx="40" ry="90" fill="none" stroke="#333" stroke-width="1"></ellipse>
+              <ellipse cx="100" cy="100" rx="90" ry="40" fill="none" stroke="#333" stroke-width="1"></ellipse>
+            </svg>
+
+            <div class="conflict-overlay">
+              <div class="conflict-overlay-inner">
+                <div class="overlay-quarter"></div>
+              </div>
+            </div>
           </div>
         </div>
 
