@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   NASHPIT — Design System & Global Styles
+   NASHCLAW — Design System & Global Styles
    Dark Mode · Orange/White · JetBrains Mono
    ═══════════════════════════════════════════════════════ */
 
@@ -587,6 +587,7 @@ section {
 
 /* Match Terminal (left side) */
 .match-terminal {
+  margin-top: 40px;
   background: var(--bg);
   border: 1px solid var(--border);
   overflow: hidden;
@@ -1267,6 +1268,10 @@ section {
     padding: 40px 24px;
   }
 
+  .match-terminal {
+    margin-top: 0;
+  }
+
   .match-body {
     grid-template-columns: 1fr;
     height: auto;
@@ -1397,6 +1402,7 @@ section {
   height: 480px;
   /* Fixed height to match right side roughly, or let it grow with padding */
   padding: 40px;
+  overflow: hidden;
 }
 
 @keyframes spin {
@@ -1414,35 +1420,7 @@ section {
   max-width: 300px;
   height: auto;
   opacity: 0.6;
-  animation: spin 20s linear infinite;
-}
-
-.conflict-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  animation: spin 8s linear infinite reverse;
-  opacity: 0.15;
-}
-
-.conflict-overlay-inner {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.overlay-quarter {
-  position: absolute;
-  width: 50%;
-  height: 50%;
-  border-right: 1px solid var(--orange);
-  border-bottom: 1px solid var(--orange);
-  background:
-    linear-gradient(135deg, transparent 40%, rgba(255, 107, 0, 0.1) 100%);
+  animation: none;
 }
 
 /* Why Right Side */

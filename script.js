@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   NASHPIT — Interactivity & Animations
+   NASHCLAW — Interactivity & Animations
    ═══════════════════════════════════════════════════════ */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const installCommandFallback = 'curl -s https://nashcalw-production.up.railway.app/skill.md';
   let copyToast = document.getElementById('copyToast');
   const copySkillCmdBtn = document.getElementById('copySkillCmd');
-  const heroCopySkillBtn = document.getElementById('heroCopySkillBtn');
+  const actionCopySkillBtns = Array.from(document.querySelectorAll('[data-copy-skill]'));
   const skillInstallCmd = document.getElementById('skillInstallCmd');
   const commandText = skillInstallCmd ? skillInstallCmd.textContent.trim() : installCommandFallback;
   let copyLabelTimer = null;
@@ -165,11 +165,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1400);
   };
 
-  const setHeroCopyLabel = (text) => {
-    if (!heroCopySkillBtn) return;
-    heroCopySkillBtn.textContent = text;
+  const setActionCopyLabel = (button, text) => {
+    if (!button) return;
+    const defaultLabel = button.getAttribute('data-default-label') || 'COPY SKILL';
+    button.textContent = text;
     setTimeout(() => {
-      heroCopySkillBtn.textContent = 'COPY SKILL';
+      button.textContent = defaultLabel;
     }, 1200);
   };
 
@@ -182,11 +183,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(t);
     t.focus();
     t.select();
-    const success = document.execCommand('copy');
-    document.body.removeChild(t);
-    if (!success) {
-      throw new Error('copy-failed');
+    let success = false;
+    try {
+      success = document.execCommand('copy');
+    } catch (e) {
+      success = false;
     }
+    document.body.removeChild(t);
+    return success;
   };
 
   const copyToClipboard = async (text) => {
@@ -198,7 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fall through to legacy copy path.
       }
     }
-    fallbackCopy(text);
+    const copied = fallbackCopy(text);
+    if (!copied) {
+      throw new Error('copy-failed');
+    }
   };
 
   if (copySkillCmdBtn) {
@@ -214,18 +221,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (heroCopySkillBtn) {
-    heroCopySkillBtn.addEventListener('click', async () => {
-      try {
-        await copyToClipboard(commandText);
-        setHeroCopyLabel('COPIED');
-        showCopyToast('Skill command copied', false);
-      } catch (e) {
-        setHeroCopyLabel('FAILED');
-        showCopyToast('Copy failed', true);
-      }
-    });
-  }
+  const handleActionCopy = async (btn) => {
+    if (!btn) return;
+    try {
+      await copyToClipboard(commandText);
+      setActionCopyLabel(btn, 'COPIED');
+      showCopyToast('Skill command copied', false);
+    } catch (e) {
+      setActionCopyLabel(btn, 'FAILED');
+      showCopyToast('Copy failed', true);
+    }
+  };
+
+  // Delegated binding keeps Hero/CTA copy working even if those buttons are re-rendered.
+  document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-copy-skill]');
+    if (!button) return;
+    handleActionCopy(button);
+  });
 
   /* ── 5. Scroll Reveal ── */
   const reveals = document.querySelectorAll('.reveal');
