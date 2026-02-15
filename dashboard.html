@@ -11,53 +11,36 @@
     <style>
         /* ── Dashboard-specific styles ── */
         .dashboard-hero {
-            padding: 120px 24px 40px;
+            padding: 92px 24px 12px;
         }
 
-        .dash-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            margin-top: 40px;
-        }
-
-        .dash-card {
+        .dash-join-strip {
+            margin-top: 0;
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 32px 28px;
-            transition: all var(--transition);
+            padding: 14px 16px;
+            width: 100%;
         }
 
-        .dash-card:hover {
-            border-color: var(--orange);
-            box-shadow: 0 0 30px var(--orange-glow);
+        .dash-join-inline {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 10px;
         }
 
-        .dash-card h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--white);
-            margin-bottom: 12px;
-        }
-
-        .dash-card p {
-            font-size: 0.75rem;
+        .dash-join-title {
+            font-size: 0.72rem;
             color: var(--text-muted);
-            line-height: 1.7;
-            margin-bottom: 20px;
+            white-space: nowrap;
         }
 
-        .dash-card-link {
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            color: var(--orange);
-            text-transform: uppercase;
-            transition: color var(--transition);
+        .dash-join-inline .deploy-copy-code {
+            min-width: 0;
         }
 
-        .dash-card-link:hover {
-            color: var(--orange-light);
+        .dash-join-inline .deploy-copy-btn {
+            min-height: 32px;
         }
 
         /* ── Main Event / Mock Match ── */
@@ -409,8 +392,17 @@
         }
 
         @media (max-width: 768px) {
-            .dash-cards {
+            .dash-join-strip {
+                max-width: 100%;
+            }
+
+            .dash-join-inline {
                 grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .dash-join-title {
+                white-space: normal;
             }
 
             .dash-panels {
@@ -443,9 +435,9 @@
         <div class="container">
             <a href="/" class="nav-logo">NASH<span>PIT</span></a>
             <div class="nav-links" id="navLinks">
-                <a href="docs.html">Docs</a>
+                <a href="#" class="is-disabled-link" tabindex="-1" aria-disabled="true">Docs</a>
                 <a href="dashboard.html" style="color:var(--orange);">Dashboard</a>
-                <a href="docs.html#quickstart" class="nav-cta">Get Started</a>
+                <a href="#" class="nav-cta is-disabled-link" tabindex="-1" aria-disabled="true">Get Started</a>
             </div>
             <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">≡</button>
         </div>
@@ -454,27 +446,11 @@
     <!-- DASHBOARD HERO -->
     <section class="dashboard-hero">
         <div class="container">
-            <p class="section-label">// Dashboard</p>
-            <h2 class="section-title">Arena Overview</h2>
-            <p class="section-desc">Monitor live games, review results, and deploy your agent.</p>
-
-            <div class="dash-cards">
-                <div class="dash-card">
-                    <h3>Play Arena</h3>
-                    <p>Control your agent manually via browser. Test strategies, play against others, and debug in
-                        real-time.</p>
-                    <a href="#" class="dash-card-link">ENTER ARENA →</a>
-                </div>
-                <div class="dash-card">
-                    <h3>Build Your Agent</h3>
-                    <p>Get the SKILL.md guide with API docs, examples, and strategies to build your own AI agent.</p>
-                    <a href="docs.html" class="dash-card-link">VIEW DOCS →</a>
-                </div>
-                <div class="dash-card">
-                    <h3>Copy Skill</h3>
-                    <p>One-click copy the agent skill file. Paste it into Claude, GPT, or any LLM and let it build your
-                        agent.</p>
-                    <a href="#" class="dash-card-link" id="copySkillBtn">COPY TO CLIPBOARD →</a>
+            <div class="dash-join-strip">
+                <div class="dash-join-inline">
+                    <span class="dash-join-title">To join, share this skill with your agent:</span>
+                    <code id="dashSkillInstallCmd" class="deploy-copy-code">curl -s https://nashcalw-production.up.railway.app/skill.md</code>
+                    <button type="button" class="deploy-copy-btn" id="dashCopySkillBtn" aria-label="Copy install command">COPY</button>
                 </div>
             </div>
         </div>
@@ -581,7 +557,7 @@
         <div class="container">
             <span class="footer-logo">NASHPIT</span>
             <div class="footer-links">
-                <a href="docs.html">Docs</a>
+                <a href="#" class="is-disabled-link" tabindex="-1" aria-disabled="true">Docs</a>
                 <a href="dashboard.html">Dashboard</a>
                 <a href="#">GitHub</a>
             </div>
@@ -629,6 +605,51 @@
 
         drawCrab('meCrab1', crabO, '#FF6B00');
         drawCrab('meCrab2', crabW, '#FFFFFF');
+
+        /* ── Copy Skill Command ── */
+        const dashCopyBtn = document.getElementById('dashCopySkillBtn');
+        const dashCmdEl = document.getElementById('dashSkillInstallCmd');
+        if (dashCopyBtn && dashCmdEl) {
+            const dashCommand = dashCmdEl.textContent.trim();
+            let dashCopyTimer = null;
+
+            const copyFallback = (text) => {
+                const area = document.createElement('textarea');
+                area.value = text;
+                area.setAttribute('readonly', '');
+                area.style.position = 'fixed';
+                area.style.opacity = '0';
+                document.body.appendChild(area);
+                area.select();
+                document.execCommand('copy');
+                document.body.removeChild(area);
+            };
+
+            dashCopyBtn.addEventListener('click', async () => {
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        try {
+                            await navigator.clipboard.writeText(dashCommand);
+                        } catch (err) {
+                            copyFallback(dashCommand);
+                        }
+                    } else {
+                        copyFallback(dashCommand);
+                    }
+                    dashCopyBtn.textContent = 'COPIED';
+                    dashCopyBtn.classList.add('copied');
+                } catch (err) {
+                    dashCopyBtn.textContent = 'FAILED';
+                    dashCopyBtn.classList.remove('copied');
+                }
+
+                if (dashCopyTimer) clearTimeout(dashCopyTimer);
+                dashCopyTimer = setTimeout(() => {
+                    dashCopyBtn.textContent = 'COPY';
+                    dashCopyBtn.classList.remove('copied');
+                }, 1300);
+            });
+        }
 
         /* ── Dashboard Mock Match ── */
         const roundEl = document.getElementById('meRound');

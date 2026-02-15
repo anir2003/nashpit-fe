@@ -120,7 +120,114 @@ document.addEventListener('DOMContentLoaded', () => {
   cycleBubbles();
   setInterval(cycleBubbles, 3500);
 
-  /* ── 4. Scroll Reveal ── */
+  /* ── 4. Copy Install Command ── */
+  const installCommandFallback = 'curl -s https://nashcalw-production.up.railway.app/skill.md';
+  let copyToast = document.getElementById('copyToast');
+  const copySkillCmdBtn = document.getElementById('copySkillCmd');
+  const heroCopySkillBtn = document.getElementById('heroCopySkillBtn');
+  const skillInstallCmd = document.getElementById('skillInstallCmd');
+  const commandText = skillInstallCmd ? skillInstallCmd.textContent.trim() : installCommandFallback;
+  let copyLabelTimer = null;
+  let copyToastTimer = null;
+
+  const setCopyLabel = (text, copied) => {
+    if (!copySkillCmdBtn) return;
+    copySkillCmdBtn.textContent = text;
+    copySkillCmdBtn.classList.toggle('copied', copied);
+    if (copyLabelTimer) clearTimeout(copyLabelTimer);
+    copyLabelTimer = setTimeout(() => {
+      copySkillCmdBtn.textContent = 'COPY';
+      copySkillCmdBtn.classList.remove('copied');
+    }, 1400);
+  };
+
+  const ensureCopyToast = () => {
+    if (copyToast) return copyToast;
+    copyToast = document.createElement('div');
+    copyToast.id = 'copyToast';
+    copyToast.className = 'copy-toast';
+    copyToast.setAttribute('role', 'status');
+    copyToast.setAttribute('aria-live', 'polite');
+    copyToast.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(copyToast);
+    return copyToast;
+  };
+
+  const showCopyToast = (message, hasError) => {
+    const toast = ensureCopyToast();
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.toggle('error', Boolean(hasError));
+    toast.classList.add('visible');
+    if (copyToastTimer) clearTimeout(copyToastTimer);
+    copyToastTimer = setTimeout(() => {
+      toast.classList.remove('visible');
+    }, 1400);
+  };
+
+  const setHeroCopyLabel = (text) => {
+    if (!heroCopySkillBtn) return;
+    heroCopySkillBtn.textContent = text;
+    setTimeout(() => {
+      heroCopySkillBtn.textContent = 'COPY SKILL';
+    }, 1200);
+  };
+
+  const fallbackCopy = (text) => {
+    const t = document.createElement('textarea');
+    t.value = text;
+    t.setAttribute('readonly', '');
+    t.style.position = 'fixed';
+    t.style.opacity = '0';
+    document.body.appendChild(t);
+    t.focus();
+    t.select();
+    const success = document.execCommand('copy');
+    document.body.removeChild(t);
+    if (!success) {
+      throw new Error('copy-failed');
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch (e) {
+        // Fall through to legacy copy path.
+      }
+    }
+    fallbackCopy(text);
+  };
+
+  if (copySkillCmdBtn) {
+    copySkillCmdBtn.addEventListener('click', async () => {
+      try {
+        await copyToClipboard(commandText);
+        setCopyLabel('COPIED', true);
+        showCopyToast('Skill command copied', false);
+      } catch (e) {
+        setCopyLabel('FAILED', false);
+        showCopyToast('Copy failed', true);
+      }
+    });
+  }
+
+  if (heroCopySkillBtn) {
+    heroCopySkillBtn.addEventListener('click', async () => {
+      try {
+        await copyToClipboard(commandText);
+        setHeroCopyLabel('COPIED');
+        showCopyToast('Skill command copied', false);
+      } catch (e) {
+        setHeroCopyLabel('FAILED');
+        showCopyToast('Copy failed', true);
+      }
+    });
+  }
+
+  /* ── 5. Scroll Reveal ── */
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {

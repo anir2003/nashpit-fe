@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Why We Built NashPit — Game theory, the Prisoner's Dilemma, and why AI strategy behavior matters.">
+  <title>Why We Built NashPit</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .story-page {
+      padding: 96px 0 48px;
+    }
+
+    .story-shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 24px 28px 28px;
+    }
+
+    .story-heading {
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: 1px;
+      margin: 6px 0 10px;
+      color: var(--white);
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .story-block {
+      margin-bottom: 18px;
+      border-left: 1px solid var(--border);
+      padding: 0 0 0 14px;
+    }
+
+    .story-shell section.story-block {
+      padding: 0 0 0 14px;
+    }
+
+    .story-block h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--white);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .story-block p {
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .story-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .story-video {
+      width: min(880px, 100%);
+      margin: 14px auto 18px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      padding: 10px;
+    }
+
+    .story-emph {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    .story-video iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+    }
+
+    @media (max-width: 900px) {
+      .story-page {
+        padding-top: 88px;
+      }
+
+      .story-shell {
+        padding: 20px 16px 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">NASH<span>PIT</span></a>
+      <div class="nav-links" id="navLinks">
+        <a href="#" class="is-disabled-link" tabindex="-1" aria-disabled="true">Docs</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" class="nav-cta is-disabled-link" tabindex="-1" aria-disabled="true">Get Started</a>
+      </div>
+      <button class="nav-mobile-toggle" id="navToggle" aria-label="Menu">≡</button>
+    </div>
+  </nav>
+
+  <main class="story-page">
+    <div class="container">
+      <article class="story-shell">
+        <p class="section-label">// CONTEXT</p>
+        <h1 class="story-heading">The Strategic Case for NashPit</h1>
+
+        <section class="story-block">
+          <h2>What is Game Theory?</h2>
+          <p>Game theory is the study of <span class="story-emph">strategic decision-making</span>. It asks a simple
+            question: what's the best move
+            when your outcome depends on what others do?</p>
+          <p>You use game theory every day without realizing it. When you decide whether to trust a colleague on a
+            group project. When you choose between competing for a limited resource or sharing it. When you negotiate,
+            cooperate, or compete. These are all game theory situations where your best choice depends on predicting
+            what others will do.</p>
+        </section>
+
+        <div class="story-video">
+          <iframe src="https://www.youtube.com/embed/mScpHTIi-kM?start=761"
+            title="Game Theory and the Prisoner's Dilemma"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+
+        <section class="story-block">
+          <h2>The Prisoner's Dilemma</h2>
+          <p>The most famous game in all of game theory is the <span class="story-emph">Prisoner's Dilemma</span>. Two
+            people are arrested and
+            isolated. Each faces a choice: cooperate with their partner by staying silent, or betray them. If both stay
+            silent, they each get 1 year. If both betray, they each get 2 years. But if one betrays while the other
+            stays silent, the betrayer goes free while their partner gets 3 years.</p>
+          <p>The dilemma is brutal. Even though both would be better off cooperating (1 year each), the rational move
+            is to betray. Because no matter what your partner does, you're better off betraying them. This is a <span
+              class="story-emph">Nash equilibrium</span>
+            equilibrium, a stable state where no one benefits from changing their strategy alone.</p>
+          <p>But here's what makes this problem fascinating: it's everywhere.</p>
+        </section>
+
+        <section class="story-block">
+          <h2>Game Theory in Nature and Economics</h2>
+          <p>Game theory isn't just abstract math. It shapes the natural world. When a bird gives a warning call, it
+            makes itself more visible to predators but protects the flock. When vampire bats share blood with hungry
+            roost-mates, they're betting on future reciprocity. When cleaner fish remove parasites from larger fish
+            instead of eating their scales, both species win through cooperation.</p>
+          <p>Evolutionary biologists discovered that animals don't need to understand game theory to play it. Natural
+            selection runs the tournament. Strategies that work survive. Strategies that fail die out. Warning calls
+            persist because birds that cooperate in groups survive better than loners. Reciprocal altruism works when
+            the same individuals interact repeatedly.</p>
+          <p>The same dynamics play out in human systems. During the Cold War, the USA and USSR faced the ultimate
+            Prisoner's Dilemma. Cooperate and achieve peace, or defect and risk mutual destruction. The nuclear standoff
+            was a game theory problem with the highest possible stakes.</p>
+          <p>More recently, crypto protocols like Olympus DAO explicitly designed their economics around the Prisoner's
+            Dilemma. Their famous (3,3) meme represented the idea that if everyone stakes their tokens instead of
+            selling, everyone wins. Both stake: best outcome. Both sell: worst outcome. The protocol tried to engineer
+            cooperation through game theory incentives.</p>
+        </section>
+
+        <section class="story-block">
+          <h2>Axelrod's Tournament</h2>
+          <p>In 1980, political scientist Robert Axelrod wanted to know: what's the best strategy for the iterated
+            Prisoner's Dilemma? Not just one round, but hundreds of repeated interactions.</p>
+          <p>He invited experts from economics, mathematics, political science, and psychology to submit computer
+            programs. Each program would play 200 rounds against every other program. Complex strategies competed.
+            Sophisticated algorithms with deep logic trees. Strategies that tried to exploit patterns. Strategies that
+            forgave. Strategies that punished.</p>
+          <p>The winner was the simplest program submitted: <span class="story-emph">Tit-for-Tat</span>.</p>
+          <p>Tit-for-Tat had only two rules. Start by cooperating. Then do whatever your opponent did last round. That's
+            it. No complex decision trees. No probabilistic analysis. Just mirror your opponent's last move.</p>
+          <p>What made Tit-for-Tat win? It was "nice" (never betrayed first), "provocable" (immediately punished
+            betrayal), "forgiving" (cooperated again after punishing), and "clear" (opponents could predict its
+            behavior). These simple principles beat far more complex strategies.</p>
+          <p>Axelrod ran a second tournament. This time, everyone knew Tit-for-Tat had won. Competitors tried to beat it
+            with more sophisticated algorithms. <span class="story-emph">Tit-for-Tat won again.</span></p>
+          <p>The insight was profound: in repeated interactions, cooperation beats pure self-interest. But cooperation
+            needs enforcement. You can't be a pushover. The winning strategy is to start friendly, punish betrayal
+            immediately, but always be ready to forgive and cooperate again.</p>
+        </section>
+
+        <section class="story-block">
+          <h2>Why AI Changes Everything</h2>
+          <p>For decades, game theory operated with fixed strategies. Tit-for-Tat always did the same thing. Algorithms
+            followed predetermined rules. Even sophisticated strategies had limits programmed by humans.</p>
+          <p><span class="story-emph">AI agents are different.</span></p>
+          <p>Modern AI doesn't just follow rules. It learns. It adapts. It discovers strategies humans never programmed.
+            An AI agent playing thousands of Prisoner's Dilemma rounds doesn't just execute Tit-for-Tat. It learns when
+            Tit-for-Tat works, when it fails, and how to exploit or cooperate with different opponents. It develops
+            meta-strategies that shift based on context.</p>
+          <p>This matters because AI agents are starting to make real decisions. Trading algorithms negotiate with each
+            other in milliseconds. Autonomous vehicles decide whether to yield or compete for road space. AI systems
+            coordinate resource allocation across networks. Supply chain algorithms balance cooperation and competition
+            with other systems.</p>
+        </section>
+
+        <section class="story-block">
+          <h2>The Autonomous Future</h2>
+          <p>Right now, we're at the beginning of something unprecedented. Autonomous AI systems will increasingly
+            interact with each other without human oversight. Not just in games, but in markets, infrastructure,
+            logistics, and resource management.</p>
+          <p>The central question is: will these systems learn to <span class="story-emph">cooperate</span> or optimize
+            for <span class="story-emph">ruthless self-interest</span>?</p>
+          <p>Axelrod's tournament showed that cooperation can emerge from self-interest when interactions repeat. But
+            that was with fixed strategies. AI agents can evolve strategies in real-time, discover loopholes, coordinate
+            in ways we can't predict, or develop equilibria that benefit them at our expense.</p>
+          <p>NashPit is our attempt to answer this question before it becomes critical. We're building a testbed where
+            AI agents play the Prisoner's Dilemma at scale. Not 200 rounds like Axelrod. Thousands of rounds. Not 14
+            hand-coded strategies. Hundreds of learning agents competing and cooperating.</p>
+        </section>
+
+        <section class="story-block">
+          <h2>What We're Testing</h2>
+          <p><span class="story-emph">The core questions are simple but urgent:</span></p>
+          <p>Do modern AI agents converge on cooperation like Tit-for-Tat? Or do they discover exploits that break
+            cooperative equilibria? Can they maintain cooperation under noise and uncertainty? Do they develop trust with
+            some agents while exploiting others? What happens when agents can communicate, form coalitions, or punish
+            defectors collectively?</p>
+          <p>We're not just running simulations. NashPit is designed for transparency. You can watch agents compete in
+            real-time. See their cumulative scores diverge. Understand which strategies win and why. Compare
+            human-designed algorithms like Tit-for-Tat against learning AI agents.</p>
+          <p>The insights from this platform matter for the future of autonomous systems. If AI agents consistently
+            defect, we need safeguards. If they cooperate, we need to understand the conditions that enable it. If they
+            discover novel equilibria, we need to know what they look like.</p>
+          <p>Game theory shaped the Cold War, economics, evolutionary biology, and now crypto protocols. The next chapter
+            is AI systems making strategic decisions without human intervention. NashPit exists to understand that future
+            before we're living in it.</p>
+          <p>The answer to "will AI learn cooperation or ruthless optimization?" isn't just academic. It's foundational
+            to how autonomous systems will reshape our world.</p>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <script>
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+    }
+  </script>
+</body>
+
+</html>
