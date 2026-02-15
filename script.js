@@ -298,10 +298,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const graphCanvas = document.getElementById('scoreGraph');
 
     let s1 = 0, s2 = 0, round = 0;
-    const total = 10;
-    const sh1 = [0], sh2 = [0];
-    const h1 = [], h2 = [];
-    let grudgeTriggered = false;
+    const total = 20;
+    const maxRoundPoints = 5;
+
+    // Arrays for history
+    const rh1 = []; // Round history agent 1 (points)
+    const rh2 = []; // Round history agent 2 (points)
+    const h1 = [], h2 = []; // Move history
+    const betrayalEvents = []; // Betrayal markers by round
 
     const chatDB = {
       cc: [
@@ -330,6 +334,10 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     };
 
+    // Icons
+    const iconHandshake = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
+    const iconSword = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+
     function addChatMsg(author, text, isA1) {
       const d = document.createElement('div');
       d.className = 'match-msg';
@@ -347,69 +355,144 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addMoveChip(r, m1, m2) {
+      const i1 = m1 === 'C' ? iconHandshake : iconSword;
+      const i2 = m2 === 'C' ? iconHandshake : iconSword;
+
       const d = document.createElement('div');
       d.className = 'match-chip';
-      d.innerHTML = `R${r} <span class="${m1 === 'C' ? 'coop' : 'defect'}">${m1}</span>·<span class="${m2 === 'C' ? 'coop' : 'defect'}">${m2}</span>`;
+      d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
       movesEl.appendChild(d);
+      movesEl.scrollLeft = movesEl.scrollWidth;
+    }
+
+    let graphResizeRaf = 0;
+    function queueGraphRedraw() {
+      if (graphResizeRaf) cancelAnimationFrame(graphResizeRaf);
+      graphResizeRaf = requestAnimationFrame(() => {
+        graphResizeRaf = 0;
+        drawScoreGraph();
+      });
     }
 
     function drawScoreGraph() {
-      if (!graphCanvas) return;
+      if (!graphCanvas || !graphCanvas.parentElement) return;
       const ctx = graphCanvas.getContext('2d');
-      const p = graphCanvas.parentElement;
-      graphCanvas.width = p.clientWidth;
-      graphCanvas.height = p.clientHeight;
-      const w = graphCanvas.width;
-      const h = graphCanvas.height;
+      const parent = graphCanvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.max(1, parent.clientWidth);
+      const h = Math.max(1, parent.clientHeight);
+
+      graphCanvas.width = Math.floor(w * dpr);
+      graphCanvas.height = Math.floor(h * dpr);
+      graphCanvas.style.width = `${w}px`;
+      graphCanvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      const maxP = Math.max(40, ...sh1, ...sh2) + 5;
-      const len = sh1.length;
-      const sx = len > 1 ? w / (len - 1) : w;
+      const leftPad = 14;
+      const rightPad = 16;
+      const topPad = 12;
+      const bottomPad = 22;
+      const cy = h / 2;
+      const availablePlotW = Math.max(1, w - leftPad - rightPad);
+      let stepX = availablePlotW / total;
+      if (stepX > 28) stepX = 28;
+      const plotW = stepX * total;
+      const startX = leftPad;
+      const xAtRound = (i) => startX + (i * stepX) + (stepX / 2);
+      const roundTickInterval = total > 16 ? 2 : 1;
 
-      // Grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 5; i++) {
-        const y = (i / 4) * h;
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      // Build cumulative arrays first so scaling adapts as the game evolves.
+      const c1Values = [0];
+      const c2Values = [0];
+      let c1 = 0;
+      let c2 = 0;
+      for (let i = 0; i < rh1.length; i++) {
+        c1 += rh1[i];
+        c2 += rh2[i];
+        c1Values.push(c1);
+        c2Values.push(c2);
       }
 
-      function drawLine(data, color, dash) {
+      const maxHalfHeight = Math.min(cy - topPad, h - bottomPad - cy);
+      const capHard = total * maxRoundPoints;
+      const maxSeen = Math.max(10, c1, c2);
+      const displayCap = Math.max(20, Math.min(capHard, Math.ceil(maxSeen * 1.18)));
+      const cumulativeScale = (maxHalfHeight - 2) / displayCap;
+
+      // Axes
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(startX, topPad);
+      ctx.lineTo(startX, h - bottomPad);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+      ctx.beginPath();
+      ctx.moveTo(startX, cy);
+      ctx.lineTo(startX + plotW, cy);
+      ctx.stroke();
+
+      // Axis labels and round ticks.
+      ctx.font = '600 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(displayCap), startX - 6, topPad + 3);
+      ctx.fillText('0', startX - 6, cy + 3);
+      ctx.fillText(String(displayCap), startX - 6, h - bottomPad + 3);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      for (let i = 0; i < total; i++) {
+        const roundNumber = i + 1;
+        if (roundNumber % roundTickInterval !== 0 && roundNumber !== 1 && roundNumber !== total) continue;
+        const x = xAtRound(i);
+        ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+        ctx.beginPath();
+        ctx.moveTo(x, cy - 3);
+        ctx.lineTo(x, cy + 3);
+        ctx.stroke();
+        ctx.fillText(String(roundNumber), x, h - 4);
+      }
+
+      const c1Points = [{ x: startX, y: cy }];
+      const c2Points = [{ x: startX, y: cy }];
+      for (let i = 1; i < c1Values.length; i++) {
+        const x = xAtRound(i - 1);
+        c1Points.push({ x, y: cy - (c1Values[i] * cumulativeScale) });
+        c2Points.push({ x, y: cy + (c2Values[i] * cumulativeScale) });
+      }
+
+      function drawPath(points, color) {
+        if (points.length < 2) return;
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
-        ctx.setLineDash(dash);
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
         ctx.beginPath();
-        data.forEach((v, i) => {
-          const x = i * sx, y = h - (v / maxP) * h;
-          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-        });
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
         ctx.stroke();
-        ctx.setLineDash([]);
       }
 
-      // Fill Orange
-      ctx.fillStyle = 'rgba(255,107,0,0.06)';
-      ctx.beginPath();
-      sh1.forEach((v, i) => {
-        const x = i * sx, y = h - (v / maxP) * h;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      });
-      ctx.lineTo((len - 1) * sx, h);
-      ctx.lineTo(0, h);
-      ctx.fill();
+      drawPath(c1Points, '#FF6B00'); // Agent_01 (orange, up)
+      drawPath(c2Points, '#FFFFFF'); // Agent_02 (white, down)
 
-      drawLine(sh1, '#FF6B00', []);
-      drawLine(sh2, '#FFFFFF', []);
-
-      // Dots
-      sh1.forEach((v, i) => {
-        const x = i * sx, y = h - (v / maxP) * h;
-        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = '#FF6B00'; ctx.fill();
-      });
-      sh2.forEach((v, i) => {
-        const x = i * sx, y = h - (v / maxP) * h;
-        ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+      // Betrayal markers: dot on the betrayer's line.
+      betrayalEvents.forEach((event) => {
+        const pointSet = event.betrayer === 1 ? c1Points : c2Points;
+        const markerPoint = pointSet[event.round + 1];
+        if (!markerPoint) return;
+        ctx.beginPath();
+        ctx.arc(markerPoint.x, markerPoint.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = event.betrayer === 1 ? '#FF6B00' : '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#0A0A0A';
+        ctx.lineWidth = 1;
+        ctx.stroke();
       });
     }
 
@@ -420,16 +503,19 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
           s1 = 0; s2 = 0; round = 0;
           h1.length = 0; h2.length = 0;
-          sh1.length = 0; sh1.push(0);
-          sh2.length = 0; sh2.push(0);
-          grudgeTriggered = false;
+
+          // Reset Histories
+          rh1.length = 0; rh2.length = 0;
+          betrayalEvents.length = 0;
+
           score1El.textContent = '0';
           score2El.textContent = '0';
           movesEl.innerHTML = '';
           chatEl.innerHTML = '';
+
           drawScoreGraph();
           addChatSys('INITIALIZING MATCH...');
-          setTimeout(playMatchRound, 1500);
+          setTimeout(playMatchRound, 900);
         }, 5000);
         return;
       }
@@ -444,8 +530,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const key = (m1 === 'C' ? 'c' : 'd') + (m2 === 'C' ? 'c' : 'd');
       const pay = { cc: [3, 3], cd: [0, 5], dc: [5, 0], dd: [1, 1] };
       const [p1, p2] = pay[key];
+
       s1 += p1; s2 += p2;
-      sh1.push(s1); sh2.push(s2);
+
+      // Update Histories
+      rh1.push(p1); rh2.push(p2);
+      if (key === 'dc') betrayalEvents.push({ round: round - 1, betrayer: 1 });
+      if (key === 'cd') betrayalEvents.push({ round: round - 1, betrayer: 2 });
 
       score1El.textContent = s1;
       score2El.textContent = s2;
@@ -459,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
       addMoveChip(round, m1, m2);
       drawScoreGraph();
 
-      setTimeout(playMatchRound, 2500);
+      setTimeout(playMatchRound, 1600);
     }
 
     // Start only when visible
@@ -467,11 +558,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (entries[0].isIntersecting) {
         addChatSys('CONNECTED TO ARENA');
         drawScoreGraph();
-        setTimeout(playMatchRound, 1000);
+        setTimeout(playMatchRound, 800);
         matchObs.unobserve(matchViewer);
       }
     }, { threshold: 0.2 });
     matchObs.observe(matchViewer);
+    window.addEventListener('resize', queueGraphRedraw);
   }
 
   /* ── 6. Mobile Nav Toggle ── */

@@ -154,7 +154,7 @@
               <span class="match-live-dot"></span>
               <span class="match-title">LIVE MATCH</span>
             </div>
-            <span class="match-round" id="simRound">ROUND 1 / 10</span>
+            <span class="match-round" id="simRound">ROUND 1 / 20</span>
           </div>
 
           <div class="match-body">
@@ -178,7 +178,23 @@
 
               <!-- Score Graph -->
               <div class="match-graph-area">
-                <canvas id="scoreGraph" class="match-graph"></canvas>
+                <div class="match-graph-legend" aria-hidden="true">
+                  <span class="legend-item orange">
+                    <span class="legend-swatch bar-up"></span>
+                    AGENT_01 CUMULATIVE
+                  </span>
+                  <span class="legend-item white">
+                    <span class="legend-swatch bar-down"></span>
+                    AGENT_02 CUMULATIVE
+                  </span>
+                  <span class="legend-item muted">
+                    <span class="legend-swatch marker"></span>
+                    BETRAYAL MARKER
+                  </span>
+                </div>
+                <div class="match-graph-canvas-wrap">
+                  <canvas id="scoreGraph" class="match-graph"></canvas>
+                </div>
               </div>
 
               <!-- Round Moves -->
