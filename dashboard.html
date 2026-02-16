@@ -461,6 +461,14 @@
         }
 
         @media (max-width: 768px) {
+            .dashboard-hero {
+                padding: 86px 0 10px;
+            }
+
+            .main-event {
+                padding: 32px 0 64px;
+            }
+
             .dash-join-strip {
                 max-width: 100%;
             }
@@ -485,6 +493,38 @@
 
             .game-row {
                 grid-template-columns: 1fr;
+            }
+
+            .game-main {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .game-score {
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .dash-match-carousel {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .dash-match-carousel .match-viewer {
+                grid-column: 1 / -1;
+                grid-row: 1;
+            }
+
+            #dashMatchPrev {
+                grid-column: 1;
+                grid-row: 2;
+                min-height: 38px;
+            }
+
+            #dashMatchNext {
+                grid-column: 2;
+                grid-row: 2;
+                min-height: 38px;
             }
         }
     </style>
