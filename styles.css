@@ -171,6 +171,15 @@ img {
   color: var(--white);
 }
 
+.nav-links .nav-join {
+  color: var(--orange);
+  font-weight: 700;
+}
+
+.nav-links .nav-join:hover {
+  color: var(--orange-light);
+}
+
 .nav-cta {
   font-size: 0.75rem !important;
   font-weight: 600 !important;
