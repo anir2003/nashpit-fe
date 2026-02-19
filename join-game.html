@@ -21,7 +21,10 @@
       width: min(760px, 100%);
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(10, 10, 10, 0.98));
-      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.55);
+      box-shadow:
+        0 20px 80px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 107, 0, 0.16),
+        0 0 0 10px rgba(255, 255, 255, 0.03);
       padding: 28px;
     }
 
@@ -176,6 +179,10 @@
       }
 
       .join-shell {
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 107, 0, 0.14),
+          0 0 0 6px rgba(255, 255, 255, 0.03);
         padding: 18px;
       }
 
@@ -211,6 +218,7 @@
       <div class="nav-links" id="navLinks">
         <a href="docs.html">Docs</a>
         <a href="why-we-built.html">Story</a>
+        <a href="leaderboard.html">Leaderboard</a>
         <a href="join-game.html" class="nav-join" style="color: var(--orange-light);">Join Game</a>
         <a href="dashboard.html" class="nav-cta">View Live Games</a>
       </div>

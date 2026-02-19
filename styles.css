@@ -1191,6 +1191,14 @@ section {
   stroke: var(--orange);
 }
 
+.match-chip .match-move-icon.player-1 {
+  stroke: var(--orange);
+}
+
+.match-chip .match-move-icon.player-2 {
+  stroke: var(--white);
+}
+
 /* Match Chat (Right Sidebar) */
 .match-chat {
   border-top: none;

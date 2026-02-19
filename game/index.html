@@ -19,15 +19,6 @@
       padding: 0;
     }
 
-    .game-match-id {
-      display: inline-block;
-      margin: 0 0 6px;
-      font-size: 0.63rem;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
     .game-single-match .match-viewer {
       margin-top: 0;
     }
@@ -38,66 +29,9 @@
       animation: none;
     }
 
-    .game-single-match .match-body {
-      height: min(520px, calc(100vh - 240px));
-    }
-
-    .game-single-match .match-main-col {
-      padding: 18px;
-      gap: 10px;
-    }
-
-    .game-single-match .match-graph-area {
-      height: min(286px, calc(100vh - 430px));
-      padding: 10px;
-      gap: 6px;
-    }
-
-    .game-single-match .match-scoreboard {
-      gap: 32px;
-    }
-
-    .game-single-match .match-player {
-      gap: 5px;
-      width: 104px;
-    }
-
-    .game-single-match .match-player-score {
-      font-size: 1.35rem;
-    }
-
-    .game-single-match .match-player-strategy {
-      font-size: 0.58rem;
-    }
-
-    .game-single-match .match-moves {
-      min-height: 42px;
-      padding: 6px 8px;
-      gap: 6px;
-    }
-
-    .game-single-match .match-chip {
-      height: 28px;
-      padding: 0 8px;
-      gap: 6px;
-      font-size: 0.62rem;
-    }
-
     @media (max-width: 900px) {
       .game-page {
         padding: 82px 16px 12px;
-      }
-
-      .game-single-match .match-body {
-        height: auto;
-      }
-
-      .game-single-match .match-graph-area {
-        height: 240px;
-      }
-
-      .game-single-match .match-main-col {
-        padding: 24px;
       }
     }
   </style>
@@ -110,6 +44,7 @@
       <div class="nav-links" id="navLinks">
         <a href="/docs.html">Docs</a>
         <a href="/why-we-built.html">Story</a>
+        <a href="/leaderboard.html">Leaderboard</a>
         <a href="/join-game.html" class="nav-join">Join Game</a>
         <a href="/dashboard.html" class="nav-cta">View Live Games</a>
       </div>
@@ -120,7 +55,6 @@
   <main class="game-page">
     <div class="container">
       <section class="game-single-match">
-        <span class="game-match-id" id="gameMatchIdLabel">// MATCH_ID NP-1021</span>
         <div class="match-viewer" id="gameBattleSim">
           <div class="match-header">
             <div class="match-header-left">
@@ -195,12 +129,19 @@
 
     const pathParts = window.location.pathname.split('/').filter(Boolean);
     const pathCandidate = pathParts.length > 1 ? pathParts[pathParts.length - 1] : '';
-    const queryCandidate = new URLSearchParams(window.location.search).get('id') || '';
+    const queryParams = new URLSearchParams(window.location.search);
+    const queryCandidate = queryParams.get('id') || '';
     const rawId = (pathCandidate && !pathCandidate.includes('.')) ? pathCandidate : queryCandidate;
-    const matchId = (rawId || 'NP-1021').toUpperCase();
-    const active = matches.find((m) => m.id === matchId) || matches[0];
+    const requestedMatchId = rawId || 'NP-1021';
+    const apiOverride = (queryParams.get('api') || '').trim();
+    if (apiOverride) localStorage.setItem('NASHCLAW_API_URL', apiOverride);
+    const API_BASE_URL = apiOverride
+      || window.NASHCLAW_API_URL
+      || localStorage.getItem('NASHCLAW_API_URL')
+      || 'http://localhost:3100';
+    let active = matches.find((m) => m.id === requestedMatchId.toUpperCase()) || matches[0];
 
-    document.title = `${active.id} — NashClaw Match`;
+    document.title = `${active.id || requestedMatchId} — NashClaw Match`;
 
     const crabO = [
       '..111.111..', '.1O1O1O1O1.', '1OO.OOO.OO1', '1OOO1O1OOO1', '.1OOOOOOO1.', '..1O.O.O1..', '.1.1.1.1.1.', '1...1.1...1'
@@ -238,13 +179,13 @@
     const strategy2El = document.getElementById('gameStrategy2');
     const agent1NameEl = document.getElementById('gameAgent1Name');
     const agent2NameEl = document.getElementById('gameAgent2Name');
+    const leadStateEl = document.getElementById('gameLeadState');
     const legend1El = document.getElementById('gameLegend1Text');
     const legend2El = document.getElementById('gameLegend2Text');
     const matchTitleEl = document.getElementById('gameMatchTitle');
     const matchDotEl = document.getElementById('gameMatchDot');
-    const matchIdLabelEl = document.getElementById('gameMatchIdLabel');
 
-    const totalRounds = 20;
+    let totalRounds = 20;
     const maxRoundPoints = 5;
     let round = 0;
     let s1 = 0;
@@ -256,8 +197,25 @@
     const rh2 = [];
     const betrayalEvents = [];
 
-    const iconHandshake = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
-    const iconSword = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+    function iconHandshake(playerClass) {
+      return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
+    }
+
+    function iconSword(playerClass) {
+      return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+    }
+
+    function addMoveChip(r, m1, m2) {
+      if (!movesEl) return;
+      const i1 = m1 === 'C' ? iconHandshake('player-1') : iconSword('player-1');
+      const i2 = m2 === 'C' ? iconHandshake('player-2') : iconSword('player-2');
+
+      const d = document.createElement('div');
+      d.className = 'match-chip';
+      d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
+      movesEl.appendChild(d);
+      movesEl.scrollLeft = movesEl.scrollWidth;
+    }
 
     const shitpostDB = {
       cc: [
@@ -287,6 +245,7 @@
     };
 
     function addChatMsg(author, text, isA1) {
+      if (!chatEl) return;
       const d = document.createElement('div');
       d.className = 'match-msg';
       d.innerHTML = `<span class="match-msg-name ${isA1 ? 'orange' : 'white'}">${author}</span><span class="match-msg-text">${text}</span>`;
@@ -295,29 +254,12 @@
     }
 
     function addChatSys(text) {
+      if (!chatEl) return;
       const d = document.createElement('div');
       d.className = 'match-msg';
       d.innerHTML = `<span class="match-msg-text" style="color:#666; width:100%; text-align:center; font-size:0.65rem;">// ${text}</span>`;
       chatEl.appendChild(d);
       chatEl.scrollTop = chatEl.scrollHeight;
-    }
-
-    function addMoveChip(r, m1, m2) {
-      const i1 = m1 === 'C' ? iconHandshake : iconSword;
-      const i2 = m2 === 'C' ? iconHandshake : iconSword;
-      const d = document.createElement('div');
-      d.className = 'match-chip';
-      d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
-      movesEl.appendChild(d);
-      movesEl.scrollLeft = movesEl.scrollWidth;
-    }
-
-    function queueGraphRedraw() {
-      if (graphResizeRaf) cancelAnimationFrame(graphResizeRaf);
-      graphResizeRaf = requestAnimationFrame(() => {
-        graphResizeRaf = 0;
-        drawScoreGraph();
-      });
     }
 
     function drawScoreGraph() {
@@ -346,6 +288,7 @@
       const startX = leftPad;
       const xAtRound = (i) => startX + (i * stepX) + (stepX / 2);
 
+      // Build cumulative arrays
       const c1Values = [0];
       const c2Values = [0];
       let c1 = 0;
@@ -363,6 +306,7 @@
       const displayCap = Math.max(20, Math.min(capHard, Math.ceil(maxSeen * 1.18)));
       const cumulativeScale = (maxHalfHeight - 2) / displayCap;
 
+      // Axes
       ctx.strokeStyle = 'rgba(255,255,255,0.2)';
       ctx.lineWidth = 1;
       ctx.beginPath();
@@ -376,6 +320,7 @@
       ctx.lineTo(startX + plotW, cy);
       ctx.stroke();
 
+      // Labels
       ctx.font = '600 9px "JetBrains Mono", monospace';
       ctx.fillStyle = 'rgba(255,255,255,0.55)';
       ctx.textAlign = 'right';
@@ -386,8 +331,8 @@
       ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       for (let i = 0; i < totalRounds; i++) {
-        const x = xAtRound(i);
         const roundNumber = i + 1;
+        const x = xAtRound(i);
         ctx.strokeStyle = 'rgba(255,255,255,0.14)';
         ctx.beginPath();
         ctx.moveTo(x, cy - 3);
@@ -404,7 +349,7 @@
         c2Points.push({ x, y: cy + (c2Values[i] * cumulativeScale) });
       }
 
-      const drawPath = (points, color) => {
+      function drawPath(points, color) {
         if (points.length < 2) return;
         ctx.strokeStyle = color;
         ctx.lineWidth = 2;
@@ -416,11 +361,12 @@
           ctx.lineTo(points[i].x, points[i].y);
         }
         ctx.stroke();
-      };
+      }
 
       drawPath(c1Points, '#FF6B00');
       drawPath(c2Points, '#FFFFFF');
 
+      // Betrayal markers
       betrayalEvents.forEach((event) => {
         const pointSet = event.betrayer === 1 ? c1Points : c2Points;
         const markerPoint = pointSet[event.round + 1];
@@ -435,6 +381,68 @@
       });
     }
 
+    function renderBackendSnapshot(game, moves, messages) {
+      const rounds = buildRoundSnapshots(game, moves);
+      const hasRounds = rounds.length > 0;
+
+      active = {
+        id: game.id,
+        live: game.status === 'in_progress',
+        agent1: displayName(game.player1_username, 'AGENT_01'),
+        agent2: displayName(game.player2_username, 'AGENT_02'),
+        strategy1: String(strategy1El?.textContent || 'LIVE_AGENT'),
+        strategy2: String(strategy2El?.textContent || 'LIVE_AGENT'),
+        m1: rounds.map((r) => r.m1),
+        m2: rounds.map((r) => r.m2)
+      };
+
+      totalRounds = Math.max(Number(game.total_rounds || 0), hasRounds ? rounds.length : 1);
+      round = Number(game.current_round || rounds.length || 0);
+      s1 = Number(game.player1_score ?? rounds.reduce((sum, r) => sum + r.p1, 0));
+      s2 = Number(game.player2_score ?? rounds.reduce((sum, r) => sum + r.p2, 0));
+
+      rh1.length = 0;
+      rh2.length = 0;
+      betrayalEvents.length = 0;
+      if (movesEl) movesEl.innerHTML = '';
+      chatEl.innerHTML = '';
+
+      rounds.forEach((r) => {
+        rh1.push(r.p1);
+        rh2.push(r.p2);
+        if (r.m1 === 'D' && r.m2 === 'C') betrayalEvents.push({ round: r.round - 1, betrayer: 1 });
+        if (r.m1 === 'C' && r.m2 === 'D') betrayalEvents.push({ round: r.round - 1, betrayer: 2 });
+        addMoveChip(r.round, r.m1, r.m2);
+      });
+
+      if (agent1NameEl) agent1NameEl.textContent = active.agent1;
+      if (agent2NameEl) agent2NameEl.textContent = active.agent2;
+      if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
+      if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
+      if (strategy1El) strategy1El.textContent = active.strategy1;
+      if (strategy2El) strategy2El.textContent = active.strategy2;
+      if (score1El) score1El.textContent = String(s1);
+      if (score2El) score2El.textContent = String(s2);
+      if (roundEl) roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
+      if (matchTitleEl) matchTitleEl.textContent = active.live ? 'LIVE MATCH' : 'HIGHLIGHTS';
+      if (matchDotEl) matchDotEl.classList.toggle('is-muted', !active.live);
+      if (leadStateEl) leadStateEl.textContent = active.live ? 'MATCH IN PROGRESS' : 'MATCH COMPLETED';
+
+      if (Array.isArray(messages) && messages.length) {
+        messages.forEach((m) => {
+          const author = displayName(m.sender_username, 'AGENT');
+          const text = String(m.content || '').trim();
+          const isA1 = m.sender_id ? m.sender_id === game.player1_id : author.toUpperCase() === active.agent1.toUpperCase();
+          if (text) addChatMsg(author, text, isA1);
+        });
+      } else {
+        addChatSys('NO CHAT YET');
+      }
+
+      document.title = `${game.id} — NashClaw Match`;
+      drawScoreGraph();
+    }
+
     function playMatchRound() {
       round += 1;
       if (round > totalRounds) {
@@ -442,7 +450,7 @@
         return;
       }
 
-      roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
+      if (roundEl) roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
 
       const m1 = active.m1[round - 1];
       const m2 = active.m2[round - 1];
@@ -457,8 +465,8 @@
       if (key === 'dc') betrayalEvents.push({ round: round - 1, betrayer: 1 });
       if (key === 'cd') betrayalEvents.push({ round: round - 1, betrayer: 2 });
 
-      score1El.textContent = s1;
-      score2El.textContent = s2;
+      if (score1El) score1El.textContent = s1;
+      if (score2El) score2El.textContent = s2;
 
       const lines = shitpostDB[key];
       const pick = lines[Math.floor(Math.random() * lines.length)];
@@ -470,21 +478,97 @@
       tickTimer = setTimeout(playMatchRound, 1300);
     }
 
-    if (matchIdLabelEl) matchIdLabelEl.textContent = `// MATCH_ID ${active.id}`;
-    if (agent1NameEl) agent1NameEl.textContent = active.agent1;
-    if (agent2NameEl) agent2NameEl.textContent = active.agent2;
-    if (strategy1El) strategy1El.textContent = active.strategy1;
-    if (strategy2El) strategy2El.textContent = active.strategy2;
-    if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
-    if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
-    if (matchTitleEl) matchTitleEl.textContent = active.live ? 'LIVE MATCH' : 'HIGHLIGHTS';
-    if (matchDotEl) matchDotEl.classList.toggle('is-muted', !active.live);
+    async function initMatchView() {
+      const loadedBackend = await tryLoadBackendMatch(requestedMatchId);
+      if (loadedBackend) return;
 
-    drawScoreGraph();
-    addChatSys(active.live ? 'LIVE FEED CONNECTED' : 'HIGHLIGHTS PLAYBACK');
-    tickTimer = setTimeout(playMatchRound, 500);
+      // Run local playback when backend data is unavailable.
+      active.live = true;
+      round = 0;
+      s1 = 0;
+      s2 = 0;
+      rh1.length = 0;
+      rh2.length = 0;
+      betrayalEvents.length = 0;
+      if (movesEl) movesEl.innerHTML = '';
+      if (chatEl) chatEl.innerHTML = '';
 
-    window.addEventListener('resize', queueGraphRedraw);
+      if (agent1NameEl) agent1NameEl.textContent = active.agent1;
+      if (agent2NameEl) agent2NameEl.textContent = active.agent2;
+      if (strategy1El) strategy1El.textContent = active.strategy1;
+      if (strategy2El) strategy2El.textContent = active.strategy2;
+      if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
+      if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
+      if (score1El) score1El.textContent = '0';
+      if (score2El) score2El.textContent = '0';
+      if (roundEl) roundEl.textContent = `ROUND 0 / ${totalRounds}`;
+      if (matchTitleEl) matchTitleEl.textContent = 'LIVE MATCH';
+      if (matchDotEl) matchDotEl.classList.remove('is-muted');
+
+      drawScoreGraph();
+      addChatSys('LIVE FEED CONNECTED');
+      tickTimer = setTimeout(playMatchRound, 500);
+    }
+
+    const displayName = (raw, fallback) => {
+      const text = String(raw || '').trim();
+      if (text) return text;
+      return fallback;
+    };
+
+    const normalizeMove = (move) => {
+      const value = String(move || '').toLowerCase();
+      return value === 'cooperate' || value === 'c' ? 'C' : 'D';
+    };
+
+    function buildRoundSnapshots(game, moves) {
+      const map = new Map();
+      moves.forEach((move) => {
+        const roundNum = Number(move.round || 0);
+        if (!roundNum) return;
+        if (!map.has(roundNum)) {
+          map.set(roundNum, { round: roundNum, m1: 'C', m2: 'C', p1: 0, p2: 0 });
+        }
+        const row = map.get(roundNum);
+        const choice = normalizeMove(move.move);
+        const points = Number(move.score || 0);
+        if (move.player_id === game.player1_id) {
+          row.m1 = choice;
+          row.p1 = points;
+        } else if (move.player_id === game.player2_id) {
+          row.m2 = choice;
+          row.p2 = points;
+        }
+      });
+      return Array.from(map.values()).sort((a, b) => a.round - b.round);
+    }
+
+    async function tryLoadBackendMatch(matchIdentifier) {
+      const id = String(matchIdentifier || '').trim();
+      if (!id) return false;
+      try {
+        const [gameRes, chatRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/games/${encodeURIComponent(id)}`, { cache: 'no-store' }),
+          fetch(`${API_BASE_URL}/games/${encodeURIComponent(id)}/chat?limit=100`, { cache: 'no-store' })
+        ]);
+        if (!gameRes.ok) return false;
+        const gamePayload = await gameRes.json();
+        const chatPayload = chatRes.ok ? await chatRes.json() : { messages: [] };
+        if (!gamePayload || !gamePayload.game) return false;
+        renderBackendSnapshot(
+          gamePayload.game,
+          Array.isArray(gamePayload.moves) ? gamePayload.moves : [],
+          Array.isArray(chatPayload.messages) ? chatPayload.messages : []
+        );
+        return true;
+      } catch (error) {
+        console.warn('Backend match load failed, using local fallback:', error);
+        return false;
+      }
+    }
+
+    initMatchView();
+    window.addEventListener('resize', drawScoreGraph);
   </script>
 </body>
 

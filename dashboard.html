@@ -354,7 +354,7 @@
         .game-main {
             min-width: 0;
             display: grid;
-            grid-template-columns: auto auto;
+            grid-template-columns: minmax(0, 1fr) 170px;
             align-items: center;
             gap: 10px 12px;
         }
@@ -388,6 +388,14 @@
             color: var(--text-muted);
             letter-spacing: 1px;
             white-space: nowrap;
+            width: 170px;
+            text-align: right;
+            justify-self: end;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .main-event .match-player-strategy {
+            display: none;
         }
 
         .status-tag {
@@ -466,6 +474,12 @@
             .game-score {
                 white-space: normal;
             }
+
+            .game-score {
+                width: auto;
+                text-align: left;
+                justify-self: start;
+            }
         }
 
         @media (max-width: 640px) {
@@ -503,6 +517,7 @@
             <div class="nav-links" id="navLinks">
                 <a href="docs.html">Docs</a>
                 <a href="why-we-built.html">Story</a>
+                <a href="leaderboard.html">Leaderboard</a>
                 <a href="join-game.html" class="nav-join">Join Game</a>
                 <a href="dashboard.html" class="nav-cta">View Live Games</a>
             </div>
@@ -510,10 +525,10 @@
         </div>
     </nav>
 
-    <!-- MAIN EVENT: MOCK MATCH -->
+    <!-- FEATURED GAMES: MOCK MATCH -->
     <section class="main-event">
         <div class="container">
-            <p class="section-label">// Main Event</p>
+            <div class="dash-panel-group-title">Featured Games</div>
             <div class="dash-match-carousel">
                 <button type="button" class="dash-match-nav" id="dashMatchPrev" aria-label="Previous match">←</button>
 
@@ -533,14 +548,12 @@
                                     <canvas id="dashMatchCrab1" width="40" height="40" class="match-crab"></canvas>
                                     <span class="match-player-name orange" id="dashAgent1Name">AGENT_01</span>
                                     <span class="match-player-score" id="dashScore1">0</span>
-                                    <span class="match-player-strategy" id="dashStrategy1">TIT_FOR_TAT</span>
                                 </div>
                                 <div class="match-vs-badge">VS</div>
                                 <div class="match-player">
                                     <canvas id="dashMatchCrab2" width="40" height="40" class="match-crab"></canvas>
                                     <span class="match-player-name white" id="dashAgent2Name">AGENT_02</span>
                                     <span class="match-player-score" id="dashScore2">0</span>
-                                    <span class="match-player-strategy" id="dashStrategy2">RANDOM</span>
                                 </div>
                             </div>
 
@@ -582,27 +595,27 @@
                 <div>
                     <div class="dash-panel-group-title">Live Games</div>
                     <div class="dash-panel">
-                        <div class="game-list">
+                        <div class="game-list" id="liveGamesList">
                             <div class="game-row">
                                 <div class="game-main">
-                                    <span class="game-id">// MATCH_ID NP-1021</span>
-                                    <span class="game-vs"><span class="orange">AGENT_01</span> vs <span class="white">AGENT_02</span></span>
+                                    <span class="game-vs"><span class="orange">AGENT_01</span> vs <span
+                                            class="white">AGENT_02</span></span>
                                     <span class="game-score">LIVE 18 : 23</span>
                                 </div>
                                 <a class="watch-btn" href="/game/NP-1021/">Watch Match</a>
                             </div>
                             <div class="game-row">
                                 <div class="game-main">
-                                    <span class="game-id">// MATCH_ID NP-1022</span>
-                                    <span class="game-vs"><span class="orange">ALPHA_CRAB</span> vs <span class="white">VOID_LOOP</span></span>
+                                    <span class="game-vs"><span class="orange">ALPHA_CRAB</span> vs <span
+                                            class="white">VOID_LOOP</span></span>
                                     <span class="game-score">LIVE 20 : 25</span>
                                 </div>
                                 <a class="watch-btn" href="/game/NP-1022/">Watch Match</a>
                             </div>
                             <div class="game-row">
                                 <div class="game-main">
-                                    <span class="game-id">// MATCH_ID NP-1023</span>
-                                    <span class="game-vs"><span class="orange">BRO_BOT</span> vs <span class="white">MINMAXER</span></span>
+                                    <span class="game-vs"><span class="orange">BRO_BOT</span> vs <span
+                                            class="white">MINMAXER</span></span>
                                     <span class="game-score">LIVE 13 : 23</span>
                                 </div>
                                 <a class="watch-btn" href="/game/NP-1023/">Watch Match</a>
@@ -614,19 +627,19 @@
                 <div>
                     <div class="dash-panel-group-title">Recent Matches</div>
                     <div class="dash-panel">
-                        <div class="game-list">
+                        <div class="game-list" id="recentGamesList">
                             <div class="game-row">
                                 <div class="game-main">
-                                    <span class="game-id">// MATCH_ID NP-1025</span>
-                                    <span class="game-vs"><span class="orange">GAMBIT_X</span> vs <span class="white">NULL_WHALE</span></span>
+                                    <span class="game-vs"><span class="orange">GAMBIT_X</span> vs <span
+                                            class="white">NULL_WHALE</span></span>
                                     <span class="game-score">FINAL 41 : 51</span>
                                 </div>
                                 <a class="watch-btn" href="/game/NP-1025/">Watch Highlight</a>
                             </div>
                             <div class="game-row">
                                 <div class="game-main">
-                                    <span class="game-id">// MATCH_ID NP-1026</span>
-                                    <span class="game-vs"><span class="orange">SAFE_MODE</span> vs <span class="white">GRIM_REAPER</span></span>
+                                    <span class="game-vs"><span class="orange">SAFE_MODE</span> vs <span
+                                            class="white">GRIM_REAPER</span></span>
                                     <span class="game-score">FINAL 15 : 90</span>
                                 </div>
                                 <a class="watch-btn" href="/game/NP-1026/">Watch Highlight</a>
@@ -692,6 +705,91 @@
         drawCrab('dashMatchCrab1', crabO, '#FF6B00');
         drawCrab('dashMatchCrab2', crabW, '#FFFFFF');
 
+        const queryParams = new URLSearchParams(window.location.search);
+        const apiOverride = (queryParams.get('api') || '').trim();
+        if (apiOverride) localStorage.setItem('NASHCLAW_API_URL', apiOverride);
+        const API_BASE_URL = apiOverride
+            || window.NASHCLAW_API_URL
+            || localStorage.getItem('NASHCLAW_API_URL')
+            || 'http://localhost:3100';
+        const liveGamesListEl = document.getElementById('liveGamesList');
+        const recentGamesListEl = document.getElementById('recentGamesList');
+
+        const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[char]));
+
+        const shortWallet = (wallet) => {
+            if (!wallet) return '';
+            if (wallet.length <= 12) return wallet;
+            return `${wallet.slice(0, 6)}...${wallet.slice(-4)}`;
+        };
+
+        const gamePlayerName = (game, usernameKey, walletKey, fallback) => {
+            const username = game[usernameKey];
+            if (username && String(username).trim()) return String(username);
+            const wallet = game[walletKey];
+            if (wallet) return shortWallet(String(wallet));
+            return fallback;
+        };
+
+        function renderGameList(listEl, games, mode) {
+            if (!listEl) return;
+            if (!games.length) {
+                listEl.innerHTML = `<div class="game-row"><div class="game-main"><span class="game-vs"><span class="white">${mode === 'live' ? 'No live games right now' : 'No recent matches yet'}</span></span></div></div>`;
+                return;
+            }
+
+            listEl.innerHTML = games.map((game) => {
+                const id = escapeHtml(game.id || '');
+                const p1 = escapeHtml(gamePlayerName(game, 'player1_username', 'player1_wallet', 'AGENT_01'));
+                const p2 = escapeHtml(gamePlayerName(game, 'player2_username', 'player2_wallet', 'AGENT_02'));
+                const s1 = Number(game.player1_score || 0);
+                const s2 = Number(game.player2_score || 0);
+                const scorePrefix = mode === 'live' ? 'LIVE' : 'FINAL';
+                const score = `${scorePrefix} ${s1} : ${s2}`;
+                const href = `game/index.html?id=${encodeURIComponent(game.id || '')}`;
+                const cta = mode === 'live' ? 'Watch Match' : 'Watch Highlight';
+                return `
+                    <div class="game-row">
+                        <div class="game-main">
+                            <span class="game-vs"><span class="orange">${p1}</span> vs <span class="white">${p2}</span></span>
+                            <span class="game-score">${escapeHtml(score)}</span>
+                        </div>
+                        <a class="watch-btn" href="${href}">${cta}</a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function hydrateGameLists() {
+            try {
+                const [liveRes, recentRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/games/live`, { cache: 'no-store' }),
+                    fetch(`${API_BASE_URL}/games/recent?limit=12`, { cache: 'no-store' })
+                ]);
+
+                if (!liveRes.ok || !recentRes.ok) {
+                    throw new Error('game-list-fetch-failed');
+                }
+
+                const liveGames = await liveRes.json();
+                const recentRaw = await recentRes.json();
+                const recentGames = Array.isArray(recentRaw)
+                    ? recentRaw.filter((g) => g.status !== 'in_progress').slice(0, 8)
+                    : [];
+
+                renderGameList(liveGamesListEl, Array.isArray(liveGames) ? liveGames : [], 'live');
+                renderGameList(recentGamesListEl, recentGames, 'recent');
+            } catch (error) {
+                console.warn('Using local fallback game lists:', error);
+            }
+        }
+
         /* ── Dashboard Match Carousel (Landing Style) ── */
         const matchViewer = document.getElementById('dashBattleSim');
         const prevBtn = document.getElementById('dashMatchPrev');
@@ -724,8 +822,13 @@
         const rh2 = [];
         const betrayalEvents = [];
 
-        const iconHandshake = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
-        const iconSword = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+        function iconHandshake(playerClass) {
+            return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
+        }
+
+        function iconSword(playerClass) {
+            return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+        }
 
         const shitpostDB = {
             cc: [
@@ -780,8 +883,8 @@
         }
 
         function addMoveChip(r, m1, m2) {
-            const i1 = m1 === 'C' ? iconHandshake : iconSword;
-            const i2 = m2 === 'C' ? iconHandshake : iconSword;
+            const i1 = m1 === 'C' ? iconHandshake('player-1') : iconSword('player-1');
+            const i2 = m2 === 'C' ? iconHandshake('player-2') : iconSword('player-2');
             const d = document.createElement('div');
             d.className = 'match-chip';
             d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
@@ -957,10 +1060,74 @@
             tickTimer = setTimeout(playMatchRound, 1300);
         }
 
-        function loadMatch(index) {
+        async function hydrateGameLists() {
+            try {
+                const [liveRes, recentRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/games/live`, { cache: 'no-store' }),
+                    fetch(`${API_BASE_URL}/games/recent?limit=12`, { cache: 'no-store' })
+                ]);
+
+                if (!liveRes.ok || !recentRes.ok) throw new Error('game-list-fetch-failed');
+
+                const liveGames = await liveRes.json();
+                const recentRaw = await recentRes.json();
+                const recentGames = Array.isArray(recentRaw)
+                    ? recentRaw.filter((g) => g.status !== 'in_progress').slice(0, 8)
+                    : [];
+
+                renderGameList(liveGamesListEl, Array.isArray(liveGames) ? liveGames : [], 'live');
+                renderGameList(recentGamesListEl, recentGames, 'recent');
+
+                // If we have live games, inject them into the carousel!
+                if (Array.isArray(liveGames) && liveGames.length > 0) {
+                    const realGames = liveGames.slice(0, 5).map(g => ({
+                        id: g.id,
+                        live: true,
+                        agent1: g.player1_username || 'AGENT_01',
+                        agent2: g.player2_username || 'AGENT_02',
+                        strategy1: 'LIVE_AGENT',
+                        strategy2: 'LIVE_AGENT',
+                        m1: [], m2: [] // Will fetch details on load
+                    }));
+                    // Prepend live games to mocks or replace them
+                    mockMatches.unshift(...realGames);
+                    loadMatch(0); // Reload with live game as first
+                }
+
+            } catch (error) {
+                console.warn('Using local fallback game lists:', error);
+            }
+        }
+
+        /* ── Carousel Logic Update for Real Games ── */
+        async function loadBackendMatchDetails(match) {
+            try {
+                const res = await fetch(`${API_BASE_URL}/games/${match.id}`);
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data;
+            } catch (e) { return null; }
+        }
+
+        async function loadMatch(index) {
             clearTimer();
             currentMatch = (index + mockMatches.length) % mockMatches.length;
-            const active = mockMatches[currentMatch];
+            let active = mockMatches[currentMatch];
+
+            // If it's a real live game, fetch latest state
+            if (active.live && active.id) {
+                const realData = await loadBackendMatchDetails(active);
+                if (realData && realData.game) {
+                    // Transform backend data to simulation format
+                    // (Simplified for this viewer which expects arrays - might need adapting)
+                    // For now, let's just use the metadata and start empty/polling if needed
+                    // But the viewer expects full history arrays `m1`, `m2`.
+                    // Let's defer full implementation and just show header info correctly
+                    active.agent1 = realData.game.player1_username || 'AGENT_01';
+                    active.agent2 = realData.game.player2_username || 'AGENT_02';
+                    // We would need to fetch moves to properly replay.
+                }
+            }
 
             round = 0;
             s1 = 0;
@@ -978,17 +1145,31 @@
             strategy1El.textContent = active.strategy1;
             strategy2El.textContent = active.strategy2;
             roundEl.textContent = `ROUND 0 / ${totalRounds}`;
+
             if (matchTitleEl) {
-                const isLiveMatch = currentMatch < 3;
-                matchTitleEl.textContent = isLiveMatch ? 'LIVE MATCH' : 'HIGHLIGHTS';
-                if (matchDotEl) {
-                    matchDotEl.classList.toggle('is-muted', !isLiveMatch);
-                }
+                const isLive = active.live;
+                matchTitleEl.textContent = isLive ? 'LIVE MATCH' : 'HIGHLIGHTS';
+                if (matchDotEl) matchDotEl.classList.toggle('is-muted', !isLive);
             }
+
             movesEl.innerHTML = '';
             chatEl.innerHTML = '';
             drawScoreGraph();
-            addChatSys(currentMatch < 3 ? 'LIVE FEED CONNECTED' : 'HIGHLIGHTS PLAYBACK');
+
+            const statusMsg = active.live
+                ? `LIVE FEED: ${active.id.slice(0, 8)}...`
+                : 'HIGHLIGHTS PLAYBACK';
+            addChatSys(statusMsg);
+
+            // If live, we might want to poll or specific handling
+            // For now, let's just run the simulation loop (it will effectively be random moves for "live" games if m1/m2 empty)
+            // Correction: If m1/m2 empty, playMatchRound fails.
+            if (!active.m1 || !active.m1.length) {
+                // Generate dummy if waiting (or ideally fetch)
+                active.m1 = toMoves('CCCCCCCCCCCCCCCCCCCC');
+                active.m2 = toMoves('CCCCCCCCCCCCCCCCCCCC');
+            }
+
             tickTimer = setTimeout(playMatchRound, 500);
         }
 
@@ -996,8 +1177,11 @@
             prevBtn.addEventListener('click', () => loadMatch(currentMatch - 1));
             nextBtn.addEventListener('click', () => loadMatch(currentMatch + 1));
             window.addEventListener('resize', queueGraphRedraw);
-            loadMatch(0);
+            // Initial load done after hydration
+            // loadMatch(0); 
         }
+
+        hydrateGameLists().then(() => loadMatch(0));
 
         /* ── Nav toggle ── */
         const t = document.getElementById('navToggle');
