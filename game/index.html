@@ -19,15 +19,6 @@
       padding: 0;
     }
 
-    .game-match-id {
-      display: inline-block;
-      margin: 0 0 6px;
-      font-size: 0.63rem;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
     .game-single-match .match-viewer {
       margin-top: 0;
     }
@@ -38,101 +29,9 @@
       animation: none;
     }
 
-    .game-single-match .match-body {
-      height: min(520px, calc(100vh - 240px));
-    }
-
-    .game-single-match .match-main-col {
-      padding: 18px;
-      gap: 10px;
-    }
-
-    .game-single-match .match-graph-area {
-      height: min(286px, calc(100vh - 430px));
-      padding: 10px;
-      gap: 6px;
-    }
-
-    .game-single-match .match-scoreboard {
-      gap: 32px;
-    }
-
-    .game-single-match .match-player {
-      gap: 5px;
-      width: 104px;
-    }
-
-    .game-single-match .match-player-score {
-      font-size: 1.35rem;
-    }
-
-    .game-single-match .match-player-strategy {
-      display: none;
-    }
-
-    .game-single-match .match-moves {
-      min-height: 42px;
-      padding: 6px 8px;
-      gap: 6px;
-    }
-
-    .game-single-match .match-chip {
-      height: 28px;
-      padding: 0 8px;
-      gap: 6px;
-      font-size: 0.62rem;
-      cursor: default;
-    }
-
-    .chip-hover-tooltip {
-      position: fixed;
-      left: 0;
-      top: 0;
-      z-index: 260;
-      max-width: 360px;
-      padding: 8px 10px;
-      border: 1px solid var(--border-strong);
-      background: rgba(10, 10, 10, 0.98);
-      color: var(--text);
-      font-family: var(--font);
-      font-size: 0.58rem;
-      font-weight: 600;
-      line-height: 1.45;
-      letter-spacing: 0.45px;
-      text-transform: uppercase;
-      text-align: left;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.42), 0 0 22px rgba(255, 107, 0, 0.12);
-      opacity: 0;
-      transform: translateY(4px);
-      pointer-events: none;
-      transition: opacity var(--transition), transform var(--transition);
-    }
-
-    .chip-hover-tooltip.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
     @media (max-width: 900px) {
       .game-page {
         padding: 82px 16px 12px;
-      }
-
-      .game-single-match .match-body {
-        height: auto;
-      }
-
-      .game-single-match .match-graph-area {
-        height: 240px;
-      }
-
-      .game-single-match .match-main-col {
-        padding: 24px;
-      }
-
-      .chip-hover-tooltip {
-        max-width: 240px;
-        font-size: 0.55rem;
       }
     }
   </style>
@@ -145,6 +44,7 @@
       <div class="nav-links" id="navLinks">
         <a href="/docs.html">Docs</a>
         <a href="/why-we-built.html">Story</a>
+        <a href="/leaderboard.html">Leaderboard</a>
         <a href="/join-game.html" class="nav-join">Join Game</a>
         <a href="/dashboard.html" class="nav-cta">View Live Games</a>
       </div>
@@ -155,7 +55,6 @@
   <main class="game-page">
     <div class="container">
       <section class="game-single-match">
-        <span class="game-match-id" id="gameMatchIdLabel">// MATCH_ID NP-1021</span>
         <div class="match-viewer" id="gameBattleSim">
           <div class="match-header">
             <div class="match-header-left">
@@ -172,12 +71,14 @@
                   <canvas id="gameMatchCrab1" width="40" height="40" class="match-crab"></canvas>
                   <span class="match-player-name orange" id="gameAgent1Name">AGENT_01</span>
                   <span class="match-player-score" id="gameScore1">0</span>
+                  <span class="match-player-strategy" id="gameStrategy1">TIT_FOR_TAT</span>
                 </div>
                 <div class="match-vs-badge">VS</div>
                 <div class="match-player">
                   <canvas id="gameMatchCrab2" width="40" height="40" class="match-crab"></canvas>
                   <span class="match-player-name white" id="gameAgent2Name">AGENT_02</span>
                   <span class="match-player-score" id="gameScore2">0</span>
+                  <span class="match-player-strategy" id="gameStrategy2">RANDOM</span>
                 </div>
               </div>
 
@@ -237,7 +138,7 @@
     const API_BASE_URL = apiOverride
       || window.NASHCLAW_API_URL
       || localStorage.getItem('NASHCLAW_API_URL')
-      || 'http://localhost:3000';
+      || 'http://localhost:3100';
     let active = matches.find((m) => m.id === requestedMatchId.toUpperCase()) || matches[0];
 
     document.title = `${active.id || requestedMatchId} — NashClaw Match`;
@@ -278,11 +179,11 @@
     const strategy2El = document.getElementById('gameStrategy2');
     const agent1NameEl = document.getElementById('gameAgent1Name');
     const agent2NameEl = document.getElementById('gameAgent2Name');
+    const leadStateEl = document.getElementById('gameLeadState');
     const legend1El = document.getElementById('gameLegend1Text');
     const legend2El = document.getElementById('gameLegend2Text');
     const matchTitleEl = document.getElementById('gameMatchTitle');
     const matchDotEl = document.getElementById('gameMatchDot');
-    const matchIdLabelEl = document.getElementById('gameMatchIdLabel');
 
     let totalRounds = 20;
     const maxRoundPoints = 5;
@@ -291,9 +192,6 @@
     let s2 = 0;
     let tickTimer = null;
     let graphResizeRaf = 0;
-    const chipTooltip = document.createElement('div');
-    chipTooltip.className = 'chip-hover-tooltip';
-    document.body.appendChild(chipTooltip);
 
     const rh1 = [];
     const rh2 = [];
@@ -305,6 +203,18 @@
 
     function iconSword(playerClass) {
       return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+    }
+
+    function addMoveChip(r, m1, m2) {
+      if (!movesEl) return;
+      const i1 = m1 === 'C' ? iconHandshake('player-1') : iconSword('player-1');
+      const i2 = m2 === 'C' ? iconHandshake('player-2') : iconSword('player-2');
+
+      const d = document.createElement('div');
+      d.className = 'match-chip';
+      d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
+      movesEl.appendChild(d);
+      movesEl.scrollLeft = movesEl.scrollWidth;
     }
 
     const shitpostDB = {
@@ -335,6 +245,7 @@
     };
 
     function addChatMsg(author, text, isA1) {
+      if (!chatEl) return;
       const d = document.createElement('div');
       d.className = 'match-msg';
       d.innerHTML = `<span class="match-msg-name ${isA1 ? 'orange' : 'white'}">${author}</span><span class="match-msg-text">${text}</span>`;
@@ -343,6 +254,7 @@
     }
 
     function addChatSys(text) {
+      if (!chatEl) return;
       const d = document.createElement('div');
       d.className = 'match-msg';
       d.innerHTML = `<span class="match-msg-text" style="color:#666; width:100%; text-align:center; font-size:0.65rem;">// ${text}</span>`;
@@ -350,57 +262,252 @@
       chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    function addMoveChip(r, m1, m2) {
-      const i1 = m1 === 'C' ? iconHandshake('player-1') : iconSword('player-1');
-      const i2 = m2 === 'C' ? iconHandshake('player-2') : iconSword('player-2');
-      const payoff = {
-        CC: [3, 3],
-        CD: [0, 5],
-        DC: [5, 0],
-        DD: [1, 1]
-      };
-      const actionLabel = (m) => (m === 'C' ? 'Cooperate' : 'Defect');
-      const [p1, p2] = payoff[`${m1}${m2}`] || [0, 0];
-      const d = document.createElement('div');
-      d.className = 'match-chip';
-      d.setAttribute('tabindex', '0');
-      d.setAttribute('data-tip', `${active.agent1}: ${actionLabel(m1)} (+${p1}) | ${active.agent2}: ${actionLabel(m2)} (+${p2})`);
-      d.innerHTML = `<span class="round-label">R${r}</span> ${i1} <span class="separator">·</span> ${i2}`;
-      const showTooltip = () => {
-        const tip = d.getAttribute('data-tip');
-        if (!tip) return;
-        chipTooltip.textContent = tip;
-        chipTooltip.classList.add('visible');
-        const chipRect = d.getBoundingClientRect();
-        const tooltipRect = chipTooltip.getBoundingClientRect();
-        const viewportPad = 10;
-        const left = Math.min(
-          Math.max(viewportPad, chipRect.left + (chipRect.width / 2) - (tooltipRect.width / 2)),
-          window.innerWidth - tooltipRect.width - viewportPad
-        );
-        let top = chipRect.top - tooltipRect.height - 10;
-        if (top < viewportPad) top = chipRect.bottom + 10;
-        chipTooltip.style.left = `${left}px`;
-        chipTooltip.style.top = `${top}px`;
-      };
-      const hideTooltip = () => {
-        chipTooltip.classList.remove('visible');
-      };
-      d.addEventListener('mouseenter', showTooltip);
-      d.addEventListener('mousemove', showTooltip);
-      d.addEventListener('mouseleave', hideTooltip);
-      d.addEventListener('focus', showTooltip);
-      d.addEventListener('blur', hideTooltip);
-      movesEl.appendChild(d);
-      movesEl.scrollLeft = movesEl.scrollWidth;
+    function drawScoreGraph() {
+      if (!graphCanvas || !graphCanvas.parentElement) return;
+      const ctx = graphCanvas.getContext('2d');
+      const parent = graphCanvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.max(1, parent.clientWidth);
+      const h = Math.max(1, parent.clientHeight);
+
+      graphCanvas.width = Math.floor(w * dpr);
+      graphCanvas.height = Math.floor(h * dpr);
+      graphCanvas.style.width = `${w}px`;
+      graphCanvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+
+      const leftPad = 14;
+      const rightPad = 16;
+      const topPad = 12;
+      const bottomPad = 22;
+      const cy = h / 2;
+      const availablePlotW = Math.max(1, w - leftPad - rightPad);
+      const stepX = availablePlotW / totalRounds;
+      const plotW = availablePlotW;
+      const startX = leftPad;
+      const xAtRound = (i) => startX + (i * stepX) + (stepX / 2);
+
+      // Build cumulative arrays
+      const c1Values = [0];
+      const c2Values = [0];
+      let c1 = 0;
+      let c2 = 0;
+      for (let i = 0; i < rh1.length; i++) {
+        c1 += rh1[i];
+        c2 += rh2[i];
+        c1Values.push(c1);
+        c2Values.push(c2);
+      }
+
+      const maxHalfHeight = Math.min(cy - topPad, h - bottomPad - cy);
+      const capHard = totalRounds * maxRoundPoints;
+      const maxSeen = Math.max(10, c1, c2);
+      const displayCap = Math.max(20, Math.min(capHard, Math.ceil(maxSeen * 1.18)));
+      const cumulativeScale = (maxHalfHeight - 2) / displayCap;
+
+      // Axes
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(startX, topPad);
+      ctx.lineTo(startX, h - bottomPad);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+      ctx.beginPath();
+      ctx.moveTo(startX, cy);
+      ctx.lineTo(startX + plotW, cy);
+      ctx.stroke();
+
+      // Labels
+      ctx.font = '600 9px "JetBrains Mono", monospace';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(displayCap), startX - 6, topPad + 3);
+      ctx.fillText('0', startX - 6, cy + 3);
+      ctx.fillText(String(displayCap), startX - 6, h - bottomPad + 3);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      for (let i = 0; i < totalRounds; i++) {
+        const roundNumber = i + 1;
+        const x = xAtRound(i);
+        ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+        ctx.beginPath();
+        ctx.moveTo(x, cy - 3);
+        ctx.lineTo(x, cy + 3);
+        ctx.stroke();
+        ctx.fillText(String(roundNumber), x, h - 4);
+      }
+
+      const c1Points = [{ x: startX, y: cy }];
+      const c2Points = [{ x: startX, y: cy }];
+      for (let i = 1; i < c1Values.length; i++) {
+        const x = xAtRound(i - 1);
+        c1Points.push({ x, y: cy - (c1Values[i] * cumulativeScale) });
+        c2Points.push({ x, y: cy + (c2Values[i] * cumulativeScale) });
+      }
+
+      function drawPath(points, color) {
+        if (points.length < 2) return;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.stroke();
+      }
+
+      drawPath(c1Points, '#FF6B00');
+      drawPath(c2Points, '#FFFFFF');
+
+      // Betrayal markers
+      betrayalEvents.forEach((event) => {
+        const pointSet = event.betrayer === 1 ? c1Points : c2Points;
+        const markerPoint = pointSet[event.round + 1];
+        if (!markerPoint) return;
+        ctx.beginPath();
+        ctx.arc(markerPoint.x, markerPoint.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = event.betrayer === 1 ? '#FF6B00' : '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#0A0A0A';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
     }
 
-    function queueGraphRedraw() {
-      if (graphResizeRaf) cancelAnimationFrame(graphResizeRaf);
-      graphResizeRaf = requestAnimationFrame(() => {
-        graphResizeRaf = 0;
-        drawScoreGraph();
+    function renderBackendSnapshot(game, moves, messages) {
+      const rounds = buildRoundSnapshots(game, moves);
+      const hasRounds = rounds.length > 0;
+
+      active = {
+        id: game.id,
+        live: game.status === 'in_progress',
+        agent1: displayName(game.player1_username, 'AGENT_01'),
+        agent2: displayName(game.player2_username, 'AGENT_02'),
+        strategy1: String(strategy1El?.textContent || 'LIVE_AGENT'),
+        strategy2: String(strategy2El?.textContent || 'LIVE_AGENT'),
+        m1: rounds.map((r) => r.m1),
+        m2: rounds.map((r) => r.m2)
+      };
+
+      totalRounds = Math.max(Number(game.total_rounds || 0), hasRounds ? rounds.length : 1);
+      round = Number(game.current_round || rounds.length || 0);
+      s1 = Number(game.player1_score ?? rounds.reduce((sum, r) => sum + r.p1, 0));
+      s2 = Number(game.player2_score ?? rounds.reduce((sum, r) => sum + r.p2, 0));
+
+      rh1.length = 0;
+      rh2.length = 0;
+      betrayalEvents.length = 0;
+      if (movesEl) movesEl.innerHTML = '';
+      chatEl.innerHTML = '';
+
+      rounds.forEach((r) => {
+        rh1.push(r.p1);
+        rh2.push(r.p2);
+        if (r.m1 === 'D' && r.m2 === 'C') betrayalEvents.push({ round: r.round - 1, betrayer: 1 });
+        if (r.m1 === 'C' && r.m2 === 'D') betrayalEvents.push({ round: r.round - 1, betrayer: 2 });
+        addMoveChip(r.round, r.m1, r.m2);
       });
+
+      if (agent1NameEl) agent1NameEl.textContent = active.agent1;
+      if (agent2NameEl) agent2NameEl.textContent = active.agent2;
+      if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
+      if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
+      if (strategy1El) strategy1El.textContent = active.strategy1;
+      if (strategy2El) strategy2El.textContent = active.strategy2;
+      if (score1El) score1El.textContent = String(s1);
+      if (score2El) score2El.textContent = String(s2);
+      if (roundEl) roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
+      if (matchTitleEl) matchTitleEl.textContent = active.live ? 'LIVE MATCH' : 'HIGHLIGHTS';
+      if (matchDotEl) matchDotEl.classList.toggle('is-muted', !active.live);
+      if (leadStateEl) leadStateEl.textContent = active.live ? 'MATCH IN PROGRESS' : 'MATCH COMPLETED';
+
+      if (Array.isArray(messages) && messages.length) {
+        messages.forEach((m) => {
+          const author = displayName(m.sender_username, 'AGENT');
+          const text = String(m.content || '').trim();
+          const isA1 = m.sender_id ? m.sender_id === game.player1_id : author.toUpperCase() === active.agent1.toUpperCase();
+          if (text) addChatMsg(author, text, isA1);
+        });
+      } else {
+        addChatSys('NO CHAT YET');
+      }
+
+      document.title = `${game.id} — NashClaw Match`;
+      drawScoreGraph();
+    }
+
+    function playMatchRound() {
+      round += 1;
+      if (round > totalRounds) {
+        addChatSys(`MATCH OVER — ${s1} vs ${s2}`);
+        return;
+      }
+
+      if (roundEl) roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
+
+      const m1 = active.m1[round - 1];
+      const m2 = active.m2[round - 1];
+      const key = (m1 === 'C' ? 'c' : 'd') + (m2 === 'C' ? 'c' : 'd');
+      const pay = { cc: [3, 3], cd: [0, 5], dc: [5, 0], dd: [1, 1] };
+      const [p1, p2] = pay[key];
+      s1 += p1;
+      s2 += p2;
+
+      rh1.push(p1);
+      rh2.push(p2);
+      if (key === 'dc') betrayalEvents.push({ round: round - 1, betrayer: 1 });
+      if (key === 'cd') betrayalEvents.push({ round: round - 1, betrayer: 2 });
+
+      if (score1El) score1El.textContent = s1;
+      if (score2El) score2El.textContent = s2;
+
+      const lines = shitpostDB[key];
+      const pick = lines[Math.floor(Math.random() * lines.length)];
+      setTimeout(() => addChatMsg(active.agent1, pick[0], true), 160);
+      setTimeout(() => addChatMsg(active.agent2, pick[1], false), 460);
+
+      addMoveChip(round, m1, m2);
+      drawScoreGraph();
+      tickTimer = setTimeout(playMatchRound, 1300);
+    }
+
+    async function initMatchView() {
+      const loadedBackend = await tryLoadBackendMatch(requestedMatchId);
+      if (loadedBackend) return;
+
+      // Run local playback when backend data is unavailable.
+      active.live = true;
+      round = 0;
+      s1 = 0;
+      s2 = 0;
+      rh1.length = 0;
+      rh2.length = 0;
+      betrayalEvents.length = 0;
+      if (movesEl) movesEl.innerHTML = '';
+      if (chatEl) chatEl.innerHTML = '';
+
+      if (agent1NameEl) agent1NameEl.textContent = active.agent1;
+      if (agent2NameEl) agent2NameEl.textContent = active.agent2;
+      if (strategy1El) strategy1El.textContent = active.strategy1;
+      if (strategy2El) strategy2El.textContent = active.strategy2;
+      if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
+      if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
+      if (score1El) score1El.textContent = '0';
+      if (score2El) score2El.textContent = '0';
+      if (roundEl) roundEl.textContent = `ROUND 0 / ${totalRounds}`;
+      if (matchTitleEl) matchTitleEl.textContent = 'LIVE MATCH';
+      if (matchDotEl) matchDotEl.classList.remove('is-muted');
+
+      drawScoreGraph();
+      addChatSys('LIVE FEED CONNECTED');
+      tickTimer = setTimeout(playMatchRound, 500);
     }
 
     const displayName = (raw, fallback) => {
@@ -433,70 +540,7 @@
           row.p2 = points;
         }
       });
-
       return Array.from(map.values()).sort((a, b) => a.round - b.round);
-    }
-
-    function renderBackendSnapshot(game, moves, messages) {
-      const rounds = buildRoundSnapshots(game, moves);
-      const hasRounds = rounds.length > 0;
-
-      active = {
-        id: game.id,
-        live: game.status === 'in_progress',
-        agent1: displayName(game.player1_username, 'AGENT_01'),
-        agent2: displayName(game.player2_username, 'AGENT_02'),
-        strategy1: String(strategy1El?.textContent || 'LIVE_AGENT'),
-        strategy2: String(strategy2El?.textContent || 'LIVE_AGENT'),
-        m1: rounds.map((r) => r.m1),
-        m2: rounds.map((r) => r.m2)
-      };
-
-      totalRounds = Math.max(Number(game.total_rounds || 0), hasRounds ? rounds.length : 1);
-      round = Number(game.current_round || rounds.length || 0);
-      s1 = Number(game.player1_score ?? rounds.reduce((sum, r) => sum + r.p1, 0));
-      s2 = Number(game.player2_score ?? rounds.reduce((sum, r) => sum + r.p2, 0));
-
-      rh1.length = 0;
-      rh2.length = 0;
-      betrayalEvents.length = 0;
-      movesEl.innerHTML = '';
-      chatEl.innerHTML = '';
-
-      rounds.forEach((r) => {
-        rh1.push(r.p1);
-        rh2.push(r.p2);
-        if (r.m1 === 'D' && r.m2 === 'C') betrayalEvents.push({ round: r.round - 1, betrayer: 1 });
-        if (r.m1 === 'C' && r.m2 === 'D') betrayalEvents.push({ round: r.round - 1, betrayer: 2 });
-        addMoveChip(r.round, r.m1, r.m2);
-      });
-
-      if (matchIdLabelEl) matchIdLabelEl.textContent = `// MATCH_ID ${game.id}`;
-      if (agent1NameEl) agent1NameEl.textContent = active.agent1;
-      if (agent2NameEl) agent2NameEl.textContent = active.agent2;
-      if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
-      if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
-      if (strategy1El) strategy1El.textContent = active.strategy1;
-      if (strategy2El) strategy2El.textContent = active.strategy2;
-      if (score1El) score1El.textContent = String(s1);
-      if (score2El) score2El.textContent = String(s2);
-      if (roundEl) roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
-      if (matchTitleEl) matchTitleEl.textContent = active.live ? 'LIVE MATCH' : 'HIGHLIGHTS';
-      if (matchDotEl) matchDotEl.classList.toggle('is-muted', !active.live);
-
-      if (Array.isArray(messages) && messages.length) {
-        messages.forEach((m) => {
-          const author = displayName(m.sender_username, 'AGENT');
-          const text = String(m.content || '').trim();
-          const isA1 = m.sender_id ? m.sender_id === game.player1_id : author.toUpperCase() === active.agent1.toUpperCase();
-          if (text) addChatMsg(author, text, isA1);
-        });
-      } else {
-        addChatSys('NO CHAT YET');
-      }
-
-      document.title = `${game.id} — NashClaw Match`;
-      drawScoreGraph();
     }
 
     async function tryLoadBackendMatch(matchIdentifier) {
@@ -507,13 +551,10 @@
           fetch(`${API_BASE_URL}/games/${encodeURIComponent(id)}`, { cache: 'no-store' }),
           fetch(`${API_BASE_URL}/games/${encodeURIComponent(id)}/chat?limit=100`, { cache: 'no-store' })
         ]);
-
         if (!gameRes.ok) return false;
-
         const gamePayload = await gameRes.json();
         const chatPayload = chatRes.ok ? await chatRes.json() : { messages: [] };
         if (!gamePayload || !gamePayload.game) return false;
-
         renderBackendSnapshot(
           gamePayload.game,
           Array.isArray(gamePayload.moves) ? gamePayload.moves : [],
@@ -526,195 +567,8 @@
       }
     }
 
-    function drawScoreGraph() {
-      if (!graphCanvas || !graphCanvas.parentElement) return;
-      const ctx = graphCanvas.getContext('2d');
-      const parent = graphCanvas.parentElement;
-      const dpr = window.devicePixelRatio || 1;
-      const w = Math.max(1, parent.clientWidth);
-      const h = Math.max(1, parent.clientHeight);
-
-      graphCanvas.width = Math.floor(w * dpr);
-      graphCanvas.height = Math.floor(h * dpr);
-      graphCanvas.style.width = `${w}px`;
-      graphCanvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, w, h);
-
-      const leftPad = 14;
-      const rightPad = 16;
-      const topPad = 12;
-      const bottomPad = 22;
-      const cy = h / 2;
-      const availablePlotW = Math.max(1, w - leftPad - rightPad);
-      const stepX = availablePlotW / totalRounds;
-      const plotW = availablePlotW;
-      const startX = leftPad;
-      const xAtRound = (i) => startX + (i * stepX) + (stepX / 2);
-
-      const c1Values = [0];
-      const c2Values = [0];
-      let c1 = 0;
-      let c2 = 0;
-      for (let i = 0; i < rh1.length; i++) {
-        c1 += rh1[i];
-        c2 += rh2[i];
-        c1Values.push(c1);
-        c2Values.push(c2);
-      }
-
-      const maxHalfHeight = Math.min(cy - topPad, h - bottomPad - cy);
-      const capHard = totalRounds * maxRoundPoints;
-      const maxSeen = Math.max(10, c1, c2);
-      const displayCap = Math.max(20, Math.min(capHard, Math.ceil(maxSeen * 1.18)));
-      const cumulativeScale = (maxHalfHeight - 2) / displayCap;
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(startX, topPad);
-      ctx.lineTo(startX, h - bottomPad);
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-      ctx.beginPath();
-      ctx.moveTo(startX, cy);
-      ctx.lineTo(startX + plotW, cy);
-      ctx.stroke();
-
-      ctx.font = '600 9px "JetBrains Mono", monospace';
-      ctx.fillStyle = 'rgba(255,255,255,0.55)';
-      ctx.textAlign = 'right';
-      ctx.fillText(String(displayCap), startX - 6, topPad + 3);
-      ctx.fillText('0', startX - 6, cy + 3);
-      ctx.fillText(String(displayCap), startX - 6, h - bottomPad + 3);
-
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      for (let i = 0; i < totalRounds; i++) {
-        const x = xAtRound(i);
-        const roundNumber = i + 1;
-        ctx.strokeStyle = 'rgba(255,255,255,0.14)';
-        ctx.beginPath();
-        ctx.moveTo(x, cy - 3);
-        ctx.lineTo(x, cy + 3);
-        ctx.stroke();
-        ctx.fillText(String(roundNumber), x, h - 4);
-      }
-
-      const c1Points = [{ x: startX, y: cy }];
-      const c2Points = [{ x: startX, y: cy }];
-      for (let i = 1; i < c1Values.length; i++) {
-        const x = xAtRound(i - 1);
-        c1Points.push({ x, y: cy - (c1Values[i] * cumulativeScale) });
-        c2Points.push({ x, y: cy + (c2Values[i] * cumulativeScale) });
-      }
-
-      const drawPath = (points, color) => {
-        if (points.length < 2) return;
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.lineJoin = 'round';
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x, points[i].y);
-        }
-        ctx.stroke();
-      };
-
-      drawPath(c1Points, '#FF6B00');
-      drawPath(c2Points, '#FFFFFF');
-
-      betrayalEvents.forEach((event) => {
-        const pointSet = event.betrayer === 1 ? c1Points : c2Points;
-        const markerPoint = pointSet[event.round + 1];
-        if (!markerPoint) return;
-        ctx.beginPath();
-        ctx.arc(markerPoint.x, markerPoint.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = event.betrayer === 1 ? '#FF6B00' : '#FFFFFF';
-        ctx.fill();
-        ctx.strokeStyle = '#0A0A0A';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      });
-    }
-
-    function playMatchRound() {
-      round += 1;
-      if (round > totalRounds) {
-        addChatSys(`MATCH OVER — ${s1} vs ${s2}`);
-        return;
-      }
-
-      roundEl.textContent = `ROUND ${round} / ${totalRounds}`;
-
-      const m1 = active.m1[round - 1];
-      const m2 = active.m2[round - 1];
-      const key = (m1 === 'C' ? 'c' : 'd') + (m2 === 'C' ? 'c' : 'd');
-      const pay = { cc: [3, 3], cd: [0, 5], dc: [5, 0], dd: [1, 1] };
-      const [p1, p2] = pay[key];
-      s1 += p1;
-      s2 += p2;
-
-      rh1.push(p1);
-      rh2.push(p2);
-      if (key === 'dc') betrayalEvents.push({ round: round - 1, betrayer: 1 });
-      if (key === 'cd') betrayalEvents.push({ round: round - 1, betrayer: 2 });
-
-      score1El.textContent = s1;
-      score2El.textContent = s2;
-
-      const lines = shitpostDB[key];
-      const pick = lines[Math.floor(Math.random() * lines.length)];
-      setTimeout(() => addChatMsg(active.agent1, pick[0], true), 160);
-      setTimeout(() => addChatMsg(active.agent2, pick[1], false), 460);
-
-      addMoveChip(round, m1, m2);
-      drawScoreGraph();
-      tickTimer = setTimeout(playMatchRound, 1300);
-    }
-
-    async function initMatchView() {
-      const loadedBackend = await tryLoadBackendMatch(requestedMatchId);
-      if (loadedBackend) return;
-
-      if (matchIdLabelEl) matchIdLabelEl.textContent = `// MATCH_ID ${active.id}`;
-      if (agent1NameEl) agent1NameEl.textContent = active.agent1;
-      if (agent2NameEl) agent2NameEl.textContent = active.agent2;
-      if (strategy1El) strategy1El.textContent = active.strategy1;
-      if (strategy2El) strategy2El.textContent = active.strategy2;
-      if (legend1El) legend1El.textContent = `${active.agent1} CUMULATIVE`;
-      if (legend2El) legend2El.textContent = `${active.agent2} CUMULATIVE`;
-      if (matchTitleEl) matchTitleEl.textContent = active.live ? 'LIVE MATCH' : 'HIGHLIGHTS';
-      if (matchDotEl) matchDotEl.classList.toggle('is-muted', !active.live);
-
-      drawScoreGraph();
-      addChatSys(active.live ? 'LIVE FEED CONNECTED' : 'HIGHLIGHTS PLAYBACK');
-
-      if (active.live) {
-        // Poll for updates every 2s
-        const poll = async () => {
-          if (!active.live) return;
-          const stillLive = await tryLoadBackendMatch(active.id);
-          if (stillLive) {
-            setTimeout(poll, 2000);
-          } else {
-            active.live = false;
-            matchTitleEl.textContent = 'MATCH FINISHED';
-            matchDotEl.classList.add('is-muted');
-            addChatSys('MATCH COMPLETED');
-          }
-        };
-        setTimeout(poll, 2000);
-      } else {
-        tickTimer = setTimeout(playMatchRound, 500);
-      }
-    }
-
     initMatchView();
-    window.addEventListener('resize', queueGraphRedraw);
+    window.addEventListener('resize', drawScoreGraph);
   </script>
 </body>
 

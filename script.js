@@ -454,9 +454,13 @@ document.addEventListener('DOMContentLoaded', () => {
       ]
     };
 
-    // Icons
-    const iconHandshake = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
-    const iconSword = `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+    function iconHandshake(playerClass) {
+      return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-cooperate"><title>Cooperate</title><circle cx="8" cy="8" r="2.5"/><circle cx="16" cy="8" r="2.5"/><path d="M2.5 19c1.2-2.3 3.1-3.8 5.5-3.8 2.4 0 4.3 1.5 5.5 3.8"/><path d="M10.5 19c1-1.9 2.7-3.1 5.5-3.1 2 0 3.8.9 5 3.1"/></svg>`;
+    }
+
+    function iconSword(playerClass) {
+      return `<svg viewBox="0 0 24 24" aria-hidden="true" class="match-move-icon ${playerClass} move-defect"><title>Defect</title><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>`;
+    }
 
     function addChatMsg(author, text, isA1) {
       const d = document.createElement('div');
@@ -475,8 +479,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addMoveChip(r, m1, m2) {
-      const i1 = m1 === 'C' ? iconHandshake : iconSword;
-      const i2 = m2 === 'C' ? iconHandshake : iconSword;
+      const i1 = m1 === 'C' ? iconHandshake('player-1') : iconSword('player-1');
+      const i2 = m2 === 'C' ? iconHandshake('player-2') : iconSword('player-2');
 
       const d = document.createElement('div');
       d.className = 'match-chip';
